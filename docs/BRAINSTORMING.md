@@ -318,6 +318,251 @@ Commands:
 
 **Priority: CLI flags > Environment > Config file > Defaults**
 
+### HTTP API
+
+Abraham provides an optional HTTP server exposing a REST API for tasks and
+projects. This enables integration with web frontends, mobile apps, and
+external automation tools.
+
+#### Starting the Server
+
+```
+abraham serve [options]
+
+Options:
+    --port, -p <port>     Port to listen on (default: 8080)
+    --host <host>         Host to bind to (default: 127.0.0.1)
+    --db <path>           Database path (overrides config)
+    --cors                Enable CORS headers for browser access
+    --read-only           Disable write operations (GET only)
+```
+
+**Examples:**
+
+```bash
+# Start server on default port
+abraham serve
+
+# Start on custom port, allow external access
+abraham serve --port 3000 --host 0.0.0.0
+
+# Read-only mode for public access
+abraham serve --read-only --cors
+```
+
+#### API Endpoints
+
+Base URL: `http://{host}:{port}/api/v1`
+
+##### Projects
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/projects` | List all projects |
+| `POST` | `/projects` | Create a new project |
+| `GET` | `/projects/{id}` | Get project by ID |
+| `PUT` | `/projects/{id}` | Update project |
+| `DELETE` | `/projects/{id}` | Delete project |
+| `GET` | `/projects/{id}/tasks` | List tasks in project |
+
+##### Tasks
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/tasks` | List all tasks |
+| `POST` | `/tasks` | Create a new task |
+| `GET` | `/tasks/{id}` | Get task by ID |
+| `PUT` | `/tasks/{id}` | Update task |
+| `DELETE` | `/tasks/{id}` | Delete task |
+| `GET` | `/tasks/{id}/subtasks` | List subtasks |
+| `POST` | `/tasks/{id}/done` | Mark task as done |
+
+#### Request/Response Formats
+
+All requests and responses use JSON with `Content-Type: application/json`.
+
+##### Create Project
+
+```http
+POST /api/v1/projects
+Content-Type: application/json
+
+{
+    "name": "Home Renovation"
+}
+```
+
+Response (201 Created):
+
+```json
+{
+    "id": 1,
+    "name": "Home Renovation",
+    "status": "active",
+    "created_at": "2025-01-15T10:30:00Z",
+    "updated_at": "2025-01-15T10:30:00Z"
+}
+```
+
+##### Create Task
+
+```http
+POST /api/v1/tasks
+Content-Type: application/json
+
+{
+    "title": "Paint living room",
+    "project_id": 1,
+    "priority": "high",
+    "due_date": "2025-02-01",
+    "description": "Use the blue paint from the garage"
+}
+```
+
+Response (201 Created):
+
+```json
+{
+    "id": 1,
+    "title": "Paint living room",
+    "project_id": 1,
+    "parent_id": null,
+    "status": "pending",
+    "priority": "high",
+    "due_date": "2025-02-01",
+    "description": "Use the blue paint from the garage",
+    "created_at": "2025-01-15T10:35:00Z",
+    "updated_at": "2025-01-15T10:35:00Z"
+}
+```
+
+##### Create Subtask
+
+```http
+POST /api/v1/tasks
+Content-Type: application/json
+
+{
+    "title": "Buy paint supplies",
+    "parent_id": 1,
+    "priority": "medium"
+}
+```
+
+##### List Tasks with Filters
+
+```http
+GET /api/v1/tasks?status=pending&priority=high&project_id=1&sort=due
+```
+
+Query parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `status` | Filter by status (pending, in_progress, done, cancelled) |
+| `priority` | Filter by priority (low, medium, high, urgent) |
+| `project_id` | Filter by project |
+| `parent_id` | Filter by parent task (use `null` for root tasks) |
+| `due_before` | Filter by due date (ISO 8601) |
+| `due_after` | Filter by due date (ISO 8601) |
+| `overdue` | Filter overdue tasks (true/false) |
+| `sort` | Sort order (priority, due, created) |
+| `include_subtasks` | Include subtask tree (true/false) |
+
+##### Update Task
+
+```http
+PUT /api/v1/tasks/1
+Content-Type: application/json
+
+{
+    "title": "Paint living room blue",
+    "priority": "urgent",
+    "status": "in_progress"
+}
+```
+
+Only provided fields are updated (partial update).
+
+##### Mark Task Done
+
+```http
+POST /api/v1/tasks/1/done
+Content-Type: application/json
+
+{
+    "recursive": true
+}
+```
+
+Marks task and optionally all subtasks as done.
+
+##### Delete Task
+
+```http
+DELETE /api/v1/tasks/1?recursive=true
+```
+
+#### Error Responses
+
+Errors return appropriate HTTP status codes with a JSON body:
+
+```json
+{
+    "error": {
+        "code": "NOT_FOUND",
+        "message": "Task with ID 42 not found"
+    }
+}
+```
+
+| Status | Code | Description |
+|--------|------|-------------|
+| 400 | `BAD_REQUEST` | Invalid request body or parameters |
+| 404 | `NOT_FOUND` | Resource not found |
+| 409 | `CONFLICT` | Conflict (e.g., deleting project with tasks) |
+| 422 | `VALIDATION_ERROR` | Validation failed |
+| 500 | `INTERNAL_ERROR` | Server error |
+
+#### Health Check
+
+```http
+GET /api/v1/health
+```
+
+Response:
+
+```json
+{
+    "status": "ok",
+    "database": "connected",
+    "version": "0.1.0"
+}
+```
+
+#### Configuration
+
+Server settings in `config.json`:
+
+```json
+{
+    "server": {
+        "host": "127.0.0.1",
+        "port": 8080,
+        "cors": false,
+        "read_only": false
+    }
+}
+```
+
+Environment variable overrides:
+
+| Variable | Description |
+|----------|-------------|
+| `ABRAHAM_SERVER_HOST` | Bind host |
+| `ABRAHAM_SERVER_PORT` | Bind port |
+| `ABRAHAM_SERVER_CORS` | Enable CORS (true/false) |
+
 ---
 
 ## Implementation Phases
@@ -509,6 +754,35 @@ CREATE INDEX idx_tasks_status ON tasks(status);
 - Merge preserves existing data
 - Replace removes old data
 
+### Phase 9: HTTP API
+
+**Goal:** REST API for external integration.
+
+**Features:**
+- [ ] `serve` command starts HTTP server
+- [ ] `--port`, `--host`, `--cors`, `--read-only` flags
+- [ ] `/api/v1/projects` CRUD endpoints
+- [ ] `/api/v1/tasks` CRUD endpoints
+- [ ] Query parameter filtering (status, priority, project, etc.)
+- [ ] `/api/v1/tasks/{id}/done` action endpoint
+- [ ] `/api/v1/health` health check
+- [ ] JSON error responses with appropriate status codes
+- [ ] Graceful shutdown on SIGINT/SIGTERM
+
+**Test coverage:**
+- Server starts and responds to health check
+- Create project via POST, verify via GET
+- Create task via POST, verify via GET
+- Update task via PUT
+- Delete task via DELETE
+- Filter tasks via query parameters
+- Subtask creation with parent_id
+- Mark done with recursive flag
+- Error responses for invalid requests
+- Error responses for not found
+- CORS headers when enabled
+- Read-only mode rejects writes
+
 ### Phase Summary Table
 
 | Phase | Focus | Patterns | Deps |
@@ -521,8 +795,9 @@ CREATE INDEX idx_tasks_status ON tasks(status);
 | 6 | Output Formatting | Strategy | 4 |
 | 7 | Sorting/Filtering | Strategy | 4 |
 | 8 | Import/Export | - | 4 |
+| 9 | HTTP API | - | 4 |
 
-Phases 5, 6, 7, 8 can be done in parallel after Phase 4.
+Phases 5, 6, 7, 8, 9 can be done in parallel after Phase 4.
 
 ---
 
@@ -1102,6 +1377,8 @@ provides natural advantages.
 | Config | `github.com/spf13/viper` | Pairs with Cobra, env/file/flag merging |
 | SQLite | `github.com/mattn/go-sqlite3` | CGO-based, full SQLite support |
 | SQLite (no CGO) | `modernc.org/sqlite` | Pure Go alternative |
+| HTTP | `net/http` + `github.com/go-chi/chi` | Stdlib router + chi for REST |
+| HTTP (alt) | `github.com/gin-gonic/gin` | Full-featured, fast |
 | Logging | `log/slog` | Stdlib structured logging (Go 1.21+) |
 | Colors | `github.com/fatih/color` | Simple terminal colors |
 | Tables | `github.com/rodaine/table` | Lightweight table formatting |
@@ -1171,6 +1448,8 @@ go/
 | Config | `config` | Multi-source config merging |
 | SQLite | `rusqlite` | Mature, well-maintained |
 | SQLite (async) | `sqlx` | Compile-time query checking |
+| HTTP | `axum` | Modern, tower-based, async |
+| HTTP (alt) | `actix-web` | High performance, mature |
 | Logging | `tracing` | Structured, async-aware |
 | Colors | `owo-colors` | Zero-allocation coloring |
 | Tables | `comfy-table` | Feature-rich table formatting |
@@ -1240,6 +1519,8 @@ rust/
 | Config | `pydantic-settings` | Validation, env support |
 | SQLite | `sqlite3` | Stdlib, sufficient |
 | SQLite (ORM) | `sqlmodel` | SQLAlchemy + Pydantic |
+| HTTP | `fastapi` | Modern async, auto OpenAPI docs |
+| HTTP (alt) | `flask` | Simple, synchronous |
 | Logging | `rich.logging` | Beautiful logging |
 | Colors/Tables | `rich` | Best-in-class terminal formatting |
 | JSON | `json` | Stdlib |
@@ -1309,6 +1590,8 @@ python/
 |---------|---------|-------|
 | CLI | `zig-clap` | Declarative argument parsing |
 | SQLite | `sqlite-zig` | Zig bindings to SQLite C API |
+| HTTP | `zap` | Blazingly fast, wraps facil.io |
+| HTTP (alt) | `std.http` | Stdlib server (basic) |
 | JSON | `std.json` | Stdlib JSON parser |
 | Logging | Custom | Build on `std.log` |
 | Colors | Custom | ANSI escape sequences |
@@ -1368,6 +1651,8 @@ zig/
 | CLI | `cligen` | Auto-generates CLI from procs |
 | CLI (alt) | `docopt.nim` | Docstring-based parsing |
 | SQLite | `db_sqlite` | Stdlib database module |
+| HTTP | `jester` | Sinatra-like micro framework |
+| HTTP (alt) | `prologue` | Full-featured web framework |
 | JSON | `std/json` | Stdlib |
 | Logging | `std/logging` | Stdlib |
 | Colors | `terminal` | Stdlib terminal colors |
@@ -1427,6 +1712,8 @@ nim/
 | CLI (alt) | `admiral` | Object-oriented CLI |
 | SQLite | `crystal-sqlite3` | SQLite bindings |
 | SQLite (ORM) | `jennifer` | Active Record style |
+| HTTP | `kemal` | Sinatra-like, fast |
+| HTTP (alt) | `amber` | Full-featured framework |
 | JSON | `JSON` (stdlib) | Built-in |
 | Logging | `Log` (stdlib) | Built-in structured logging |
 | Colors | `colorize` (stdlib) | Built-in |
@@ -1490,6 +1777,8 @@ crystal/
 | CLI (alt) | `argparse` | Python argparse-style |
 | Config | `nlohmann/json` | Also handles config files |
 | SQLite | `SQLiteCpp` | C++ wrapper around SQLite |
+| HTTP | `cpp-httplib` | Header-only, simple |
+| HTTP (alt) | `drogon` | High-performance async |
 | JSON | `nlohmann/json` | Industry standard |
 | Logging | `spdlog` | Fast, feature-rich |
 | Colors | `fmt` | Has color support |
@@ -1562,6 +1851,8 @@ cpp/
 | CLI | `argtable3` | Feature-rich argument parsing |
 | CLI (alt) | `getopt` (POSIX) | Minimal, standard |
 | SQLite | `sqlite3` | Direct C API |
+| HTTP | `libmicrohttpd` | GNU, lightweight embedded |
+| HTTP (alt) | `mongoose` | Single-file, embedded |
 | JSON | `cJSON` | Lightweight, common |
 | JSON (alt) | `json-c` | More features |
 | Logging | Custom | fprintf to stderr |
@@ -1633,6 +1924,8 @@ c/
 | CLI | `darg` | Declarative argument parsing |
 | CLI (alt) | `std.getopt` | Stdlib option parsing |
 | SQLite | `d2sqlite3` | D bindings |
+| HTTP | `vibe.d` | Full-featured async framework |
+| HTTP (alt) | `hunt-framework` | High-performance |
 | JSON | `std.json` | Stdlib |
 | Logging | `std.experimental.logger` | Stdlib |
 | Colors | Custom | ANSI sequences |
@@ -1683,17 +1976,17 @@ d/
 
 ## Language Comparison Summary
 
-| Language | Binary | CLI Library | SQLite | Difficulty | Strengths |
-|----------|--------|-------------|--------|------------|-----------|
-| **Go** | Single | Cobra | go-sqlite3 | Easy | Fast build, great tooling |
-| **Rust** | Single | Clap | rusqlite | Medium | Type safety, performance |
-| **Python** | Script | Typer | sqlite3 | Easy | Rapid dev, Rich output |
-| **Zig** | Single | zig-clap | C interop | Hard | Control, minimal deps |
-| **Nim** | Single | cligen | db_sqlite | Medium | Readable, fast |
-| **Crystal** | Single | admiral | sqlite3 | Medium | Ruby-like, compiled |
-| **C++** | Single | CLI11 | SQLiteCpp | Medium | Performance, mature |
-| **C** | Single | argtable3 | sqlite3 | Hard | Control, minimal |
-| **D** | Single | darg | d2sqlite3 | Medium | Metaprogramming |
+| Language | Binary | CLI Library | SQLite | HTTP | Difficulty |
+|----------|--------|-------------|--------|------|------------|
+| **Go** | Single | Cobra | go-sqlite3 | chi / gin | Easy |
+| **Rust** | Single | Clap | rusqlite | axum | Medium |
+| **Python** | Script | Typer | sqlite3 | FastAPI | Easy |
+| **Zig** | Single | zig-clap | C interop | zap | Hard |
+| **Nim** | Single | cligen | db_sqlite | jester | Medium |
+| **Crystal** | Single | admiral | sqlite3 | kemal | Medium |
+| **C++** | Single | CLI11 | SQLiteCpp | cpp-httplib | Medium |
+| **C** | Single | argtable3 | sqlite3 | libmicrohttpd | Hard |
+| **D** | Single | darg | d2sqlite3 | vibe.d | Medium |
 
 ---
 
