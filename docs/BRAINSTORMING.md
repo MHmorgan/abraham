@@ -1080,6 +1080,623 @@ done
 
 ---
 
+## Language Implementations
+
+Each implementation should be idiomatic to its language while maintaining CLI
+compatibility. Languages may add extended functionality where their ecosystem
+provides natural advantages.
+
+### Go
+
+**Why Go fits well:**
+- Excellent CLI tooling ecosystem
+- Fast compilation, single binary output
+- Strong SQLite support via CGO
+- Simple concurrency for potential future features
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `github.com/spf13/cobra` | Industry standard, subcommands, completions |
+| Config | `github.com/spf13/viper` | Pairs with Cobra, env/file/flag merging |
+| SQLite | `github.com/mattn/go-sqlite3` | CGO-based, full SQLite support |
+| SQLite (no CGO) | `modernc.org/sqlite` | Pure Go alternative |
+| Logging | `log/slog` | Stdlib structured logging (Go 1.21+) |
+| Colors | `github.com/fatih/color` | Simple terminal colors |
+| Tables | `github.com/rodaine/table` | Lightweight table formatting |
+| JSON | `encoding/json` | Stdlib, sufficient for needs |
+
+**Project Structure:**
+
+```
+go/
+├── go.mod
+├── go.sum
+├── main.go                  # Entry point
+├── cmd/
+│   ├── root.go              # Root command, global flags
+│   ├── init.go              # init command
+│   ├── config.go            # config subcommands
+│   ├── project.go           # project subcommands
+│   ├── task.go              # task subcommands
+│   └── export.go            # export/import commands
+├── internal/
+│   ├── config/
+│   │   └── config.go        # Config loading, merging
+│   ├── db/
+│   │   ├── db.go            # Connection, migrations
+│   │   ├── project.go       # Project repository
+│   │   └── task.go          # Task repository
+│   ├── model/
+│   │   ├── project.go       # Project domain type
+│   │   └── task.go          # Task domain type, composite
+│   ├── format/
+│   │   ├── formatter.go     # Strategy interface
+│   │   ├── table.go
+│   │   ├── json.go
+│   │   └── tree.go
+│   └── log/
+│       └── log.go           # Colored stderr logging
+└── build/
+    └── abraham              # Output binary
+```
+
+**Idiomatic Patterns:**
+- Interfaces for Strategy pattern (Formatter, Sorter, Filter)
+- Embedded structs for Composite (Task contains []Task)
+- Context propagation for cancellation
+- Table-driven tests in `_test.go` files
+
+**Go-Specific Extensions:**
+- Shell completions via Cobra (`abraham completion bash/zsh/fish`)
+- `--json` flag on all commands for scripting (Cobra makes this trivial)
+- Potential: concurrent task operations
+
+---
+
+### Rust
+
+**Why Rust fits well:**
+- Excellent CLI libraries with derive macros
+- Strong type system for domain modeling
+- Enums with data perfect for patterns
+- Memory safety, single binary
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `clap` | Derive macros, subcommands, completions |
+| Config | `config` | Multi-source config merging |
+| SQLite | `rusqlite` | Mature, well-maintained |
+| SQLite (async) | `sqlx` | Compile-time query checking |
+| Logging | `tracing` | Structured, async-aware |
+| Colors | `owo-colors` | Zero-allocation coloring |
+| Tables | `comfy-table` | Feature-rich table formatting |
+| JSON | `serde` + `serde_json` | Industry standard |
+| Errors | `thiserror` | Derive error types |
+| Errors (app) | `anyhow` | Ergonomic error handling |
+
+**Project Structure:**
+
+```
+rust/
+├── Cargo.toml
+├── Cargo.lock
+└── src/
+    ├── main.rs              # Entry point
+    ├── cli.rs               # Clap command definitions
+    ├── config.rs            # Config loading
+    ├── db/
+    │   ├── mod.rs
+    │   ├── migrations.rs
+    │   ├── project.rs       # Project queries
+    │   └── task.rs          # Task queries
+    ├── model/
+    │   ├── mod.rs
+    │   ├── project.rs
+    │   └── task.rs          # Task with children (Composite)
+    ├── format/
+    │   ├── mod.rs           # Formatter trait (Strategy)
+    │   ├── table.rs
+    │   ├── json.rs
+    │   └── tree.rs
+    ├── sort/
+    │   ├── mod.rs           # Sorter trait (Strategy)
+    │   └── strategies.rs
+    ├── error.rs             # Custom error types
+    └── log.rs               # Logging setup
+```
+
+**Idiomatic Patterns:**
+- `enum` for status/priority with `#[derive(Serialize, Deserialize)]`
+- Traits for Strategy pattern (`trait Formatter`, `trait Sorter`)
+- Recursive `Task` struct for Composite pattern
+- `Result<T, Error>` throughout, `?` operator
+- Builder pattern for complex queries
+
+**Rust-Specific Extensions:**
+- Shell completions via Clap (`abraham completions bash`)
+- Man page generation via `clap_mangen`
+- `--format=ron` output (Rust Object Notation)
+- Compile-time SQL validation with `sqlx`
+
+---
+
+### Python
+
+**Why Python fits well:**
+- Rapid prototyping
+- Rich ecosystem
+- Easy to read implementation
+- Good for scripting extensions
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `typer` | Modern, type-hint based (builds on Click) |
+| Config | `pydantic-settings` | Validation, env support |
+| SQLite | `sqlite3` | Stdlib, sufficient |
+| SQLite (ORM) | `sqlmodel` | SQLAlchemy + Pydantic |
+| Logging | `rich.logging` | Beautiful logging |
+| Colors/Tables | `rich` | Best-in-class terminal formatting |
+| JSON | `json` | Stdlib |
+| Packaging | `hatch` or `poetry` | Modern project management |
+
+**Project Structure:**
+
+```
+python/
+├── pyproject.toml
+├── src/
+│   └── abraham/
+│       ├── __init__.py
+│       ├── __main__.py      # Entry: python -m abraham
+│       ├── cli/
+│       │   ├── __init__.py
+│       │   ├── main.py      # Typer app, root command
+│       │   ├── config.py    # config subcommands
+│       │   ├── project.py   # project subcommands
+│       │   ├── task.py      # task subcommands
+│       │   └── export.py    # export/import
+│       ├── config.py        # Settings management
+│       ├── db/
+│       │   ├── __init__.py
+│       │   ├── connection.py
+│       │   ├── migrations.py
+│       │   └── repository.py
+│       ├── model/
+│       │   ├── __init__.py
+│       │   ├── project.py
+│       │   └── task.py      # Pydantic models
+│       └── format/
+│           ├── __init__.py
+│           ├── base.py      # Protocol/ABC (Strategy)
+│           ├── table.py
+│           ├── json.py
+│           └── tree.py
+└── tests/                   # Unit tests (pytest)
+```
+
+**Idiomatic Patterns:**
+- Type hints throughout (Python 3.10+)
+- `Protocol` or `ABC` for Strategy pattern
+- Dataclasses or Pydantic models for domain types
+- Context managers for database connections
+- Decorators for command registration (Typer)
+
+**Python-Specific Extensions:**
+- REPL mode: `abraham shell` for interactive task management
+- Plugin system via entry points
+- `--format=yaml` output (PyYAML is ubiquitous)
+- Rich markdown rendering for task descriptions
+
+---
+
+### Zig
+
+**Why Zig fits well:**
+- No hidden control flow, explicit allocations
+- Comptime for zero-cost abstractions
+- C interop for SQLite
+- Small, fast binaries
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `zig-clap` | Declarative argument parsing |
+| SQLite | `sqlite-zig` | Zig bindings to SQLite C API |
+| JSON | `std.json` | Stdlib JSON parser |
+| Logging | Custom | Build on `std.log` |
+| Colors | Custom | ANSI escape sequences |
+| Tables | Custom | No mature library, implement |
+
+**Project Structure:**
+
+```
+zig/
+├── build.zig
+├── build.zig.zon            # Package dependencies
+└── src/
+    ├── main.zig             # Entry point
+    ├── cli.zig              # Argument parsing
+    ├── config.zig           # Config loading
+    ├── db/
+    │   ├── db.zig           # SQLite connection
+    │   ├── migrate.zig
+    │   └── repo.zig         # Queries
+    ├── model/
+    │   ├── project.zig
+    │   └── task.zig         # Task struct with children
+    ├── format/
+    │   ├── format.zig       # Formatter interface (fn ptr)
+    │   ├── table.zig
+    │   ├── json.zig
+    │   └── tree.zig
+    └── log.zig              # Colored logging
+```
+
+**Idiomatic Patterns:**
+- Tagged unions for enums (Status, Priority)
+- Function pointers or vtables for Strategy pattern
+- Allocator-aware data structures
+- `ArrayList(Task)` for children (Composite)
+- Comptime validation where possible
+
+**Zig-Specific Extensions:**
+- Memory usage statistics (`--debug-alloc`)
+- Explicit allocator choice (`--allocator=arena|gpa|c`)
+- Minimal binary size focus
+
+---
+
+### Nim
+
+**Why Nim fits well:**
+- Python-like syntax, C-like performance
+- Powerful macro system
+- Good C interop for SQLite
+- Single binary output
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `cligen` | Auto-generates CLI from procs |
+| CLI (alt) | `docopt.nim` | Docstring-based parsing |
+| SQLite | `db_sqlite` | Stdlib database module |
+| JSON | `std/json` | Stdlib |
+| Logging | `std/logging` | Stdlib |
+| Colors | `terminal` | Stdlib terminal colors |
+| Tables | Custom | Simple implementation |
+
+**Project Structure:**
+
+```
+nim/
+├── abraham.nimble           # Package manager config
+├── src/
+│   ├── abraham.nim          # Entry point
+│   ├── cli.nim              # Command definitions
+│   ├── config.nim           # Config management
+│   ├── db/
+│   │   ├── db.nim           # Connection
+│   │   ├── migrate.nim
+│   │   └── repo.nim
+│   ├── model/
+│   │   ├── project.nim
+│   │   └── task.nim         # Object variants
+│   └── format/
+│       ├── formatter.nim    # Base type + methods
+│       ├── table.nim
+│       ├── json.nim
+│       └── tree.nim
+└── tests/
+```
+
+**Idiomatic Patterns:**
+- Object variants for enums with data
+- Method-based dispatch for Strategy (concept or method)
+- `ref` objects for Composite tree
+- Templates/macros for boilerplate reduction
+- `{.raises: [].}` for effect tracking
+
+**Nim-Specific Extensions:**
+- Compile-time SQL validation macros
+- Hot code reloading during development
+- JavaScript target for web version
+
+---
+
+### Crystal
+
+**Why Crystal fits well:**
+- Ruby-like syntax, compiled
+- Strong type inference
+- Null safety
+- Good concurrency primitives
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `commander` or `clip` | Command-line parsing |
+| CLI (alt) | `admiral` | Object-oriented CLI |
+| SQLite | `crystal-sqlite3` | SQLite bindings |
+| SQLite (ORM) | `jennifer` | Active Record style |
+| JSON | `JSON` (stdlib) | Built-in |
+| Logging | `Log` (stdlib) | Built-in structured logging |
+| Colors | `colorize` (stdlib) | Built-in |
+| Tables | Custom | Simple implementation |
+
+**Project Structure:**
+
+```
+crystal/
+├── shard.yml                # Dependency manager
+├── shard.lock
+└── src/
+    ├── abraham.cr           # Entry point
+    ├── cli/
+    │   ├── cli.cr           # Command definitions
+    │   ├── config_cmd.cr
+    │   ├── project_cmd.cr
+    │   └── task_cmd.cr
+    ├── config.cr
+    ├── db/
+    │   ├── db.cr
+    │   ├── migrate.cr
+    │   └── repo.cr
+    ├── model/
+    │   ├── project.cr
+    │   └── task.cr
+    └── format/
+        ├── formatter.cr     # Abstract class / module
+        ├── table.cr
+        ├── json.cr
+        └── tree.cr
+```
+
+**Idiomatic Patterns:**
+- Abstract classes or modules for Strategy pattern
+- Classes with `property` for domain models
+- `Nil` union types for nullable fields
+- Blocks for iteration patterns
+- Macros for reducing boilerplate
+
+**Crystal-Specific Extensions:**
+- Fiber-based concurrent operations
+- Compile-time type checking
+- `--release` optimized builds
+
+---
+
+### C++
+
+**Why C++ fits well:**
+- Maximum performance
+- Rich standard library (C++17/20)
+- Mature SQLite integration
+- Industry-proven patterns
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `CLI11` | Modern, header-only |
+| CLI (alt) | `argparse` | Python argparse-style |
+| Config | `nlohmann/json` | Also handles config files |
+| SQLite | `SQLiteCpp` | C++ wrapper around SQLite |
+| JSON | `nlohmann/json` | Industry standard |
+| Logging | `spdlog` | Fast, feature-rich |
+| Colors | `fmt` | Has color support |
+| Tables | `tabulate` | Header-only tables |
+| Build | `CMake` | Standard build system |
+| Package | `vcpkg` or `conan` | Dependency management |
+
+**Project Structure:**
+
+```
+cpp/
+├── CMakeLists.txt
+├── vcpkg.json               # Dependencies
+└── src/
+    ├── main.cpp             # Entry point
+    ├── cli/
+    │   ├── cli.hpp
+    │   ├── cli.cpp
+    │   └── commands/
+    │       ├── init.cpp
+    │       ├── config.cpp
+    │       ├── project.cpp
+    │       └── task.cpp
+    ├── config/
+    │   ├── config.hpp
+    │   └── config.cpp
+    ├── db/
+    │   ├── database.hpp
+    │   ├── database.cpp
+    │   ├── repository.hpp
+    │   └── repository.cpp
+    ├── model/
+    │   ├── project.hpp
+    │   ├── task.hpp         # Task with vector<Task>
+    │   └── types.hpp        # Enums
+    └── format/
+        ├── formatter.hpp    # Abstract base class
+        ├── table.cpp
+        ├── json.cpp
+        └── tree.cpp
+```
+
+**Idiomatic Patterns:**
+- Abstract base classes + virtual for Strategy
+- `std::unique_ptr<Task>` / `std::vector<Task>` for Composite
+- `std::optional<T>` for nullable fields
+- `std::variant` for tagged unions
+- RAII for resource management
+- Move semantics for performance
+
+**C++-Specific Extensions:**
+- `--parallel` for concurrent task operations (C++17 parallel algorithms)
+- Memory-mapped database for large datasets
+- `constexpr` validation where possible
+
+---
+
+### C
+
+**Why C fits well:**
+- Maximum control
+- Minimal dependencies
+- Direct SQLite API access
+- Educational value
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `argtable3` | Feature-rich argument parsing |
+| CLI (alt) | `getopt` (POSIX) | Minimal, standard |
+| SQLite | `sqlite3` | Direct C API |
+| JSON | `cJSON` | Lightweight, common |
+| JSON (alt) | `json-c` | More features |
+| Logging | Custom | fprintf to stderr |
+| Colors | Custom | ANSI escape codes |
+| Tables | Custom | Manual formatting |
+| Build | `make` or `CMake` | Standard |
+
+**Project Structure:**
+
+```
+c/
+├── Makefile
+├── include/
+│   ├── abraham.h            # Main header
+│   ├── cli.h
+│   ├── config.h
+│   ├── db.h
+│   ├── model.h
+│   ├── format.h
+│   └── log.h
+└── src/
+    ├── main.c               # Entry point
+    ├── cli/
+    │   ├── cli.c            # Argument parsing
+    │   ├── cmd_init.c
+    │   ├── cmd_config.c
+    │   ├── cmd_project.c
+    │   └── cmd_task.c
+    ├── config.c
+    ├── db/
+    │   ├── db.c             # Connection, migrations
+    │   └── repo.c           # CRUD operations
+    ├── model/
+    │   ├── project.c
+    │   └── task.c           # Task with linked list children
+    └── format/
+        ├── format.c         # Function pointer dispatch
+        ├── table.c
+        ├── json.c
+        └── tree.c
+```
+
+**Idiomatic Patterns:**
+- Function pointers for Strategy pattern
+- Structs with pointers for Composite (linked list or dynamic array)
+- Tagged unions for enums with data
+- Explicit memory management (malloc/free)
+- Error codes + out parameters
+
+**C-Specific Extensions:**
+- Static builds with musl for portability
+- Valgrind-clean memory usage
+- Minimal binary size (`-Os`, `strip`)
+
+---
+
+### D
+
+**Why D fits well:**
+- C-like performance with modern features
+- Excellent metaprogramming
+- Good C interop for SQLite
+- Garbage collection (optional)
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `darg` | Declarative argument parsing |
+| CLI (alt) | `std.getopt` | Stdlib option parsing |
+| SQLite | `d2sqlite3` | D bindings |
+| JSON | `std.json` | Stdlib |
+| Logging | `std.experimental.logger` | Stdlib |
+| Colors | Custom | ANSI sequences |
+| Tables | Custom | Format with std.format |
+| Build | `dub` | Standard package manager |
+
+**Project Structure:**
+
+```
+d/
+├── dub.json                 # Package config
+└── source/
+    ├── app.d                # Entry point
+    ├── cli/
+    │   ├── cli.d
+    │   ├── config_cmd.d
+    │   ├── project_cmd.d
+    │   └── task_cmd.d
+    ├── config.d
+    ├── db/
+    │   ├── database.d
+    │   ├── migrate.d
+    │   └── repo.d
+    ├── model/
+    │   ├── project.d
+    │   └── task.d           # Task class with children
+    └── format/
+        ├── formatter.d      # Interface
+        ├── table.d
+        ├── json.d
+        └── tree.d
+```
+
+**Idiomatic Patterns:**
+- Interfaces for Strategy pattern
+- Classes with garbage collection for Composite
+- `Nullable!T` for optional fields
+- Ranges for lazy iteration
+- UFCS (Uniform Function Call Syntax) for fluent APIs
+- Templates for generic code
+
+**D-Specific Extensions:**
+- `@nogc` paths for performance-critical code
+- Compile-time function evaluation (CTFE)
+- BetterC mode for minimal runtime
+
+---
+
+## Language Comparison Summary
+
+| Language | Binary | CLI Library | SQLite | Difficulty | Strengths |
+|----------|--------|-------------|--------|------------|-----------|
+| **Go** | Single | Cobra | go-sqlite3 | Easy | Fast build, great tooling |
+| **Rust** | Single | Clap | rusqlite | Medium | Type safety, performance |
+| **Python** | Script | Typer | sqlite3 | Easy | Rapid dev, Rich output |
+| **Zig** | Single | zig-clap | C interop | Hard | Control, minimal deps |
+| **Nim** | Single | cligen | db_sqlite | Medium | Readable, fast |
+| **Crystal** | Single | admiral | sqlite3 | Medium | Ruby-like, compiled |
+| **C++** | Single | CLI11 | SQLiteCpp | Medium | Performance, mature |
+| **C** | Single | argtable3 | sqlite3 | Hard | Control, minimal |
+| **D** | Single | darg | d2sqlite3 | Medium | Metaprogramming |
+
+---
+
 ## Next Steps
 
 1. **Finalize domain choice**: Confirm task/project manager or pivot
