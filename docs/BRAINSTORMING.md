@@ -54,14 +54,6 @@ abraham/
 
 ---
 
-## Table of Contents
-
-1. [Domain: Task/Project Manager](#domain-taskproject-manager)
-2. [Implementation Phases](#implementation-phases)
-3. [Test Framework](#test-framework)
-
----
-
 ## Domain: Task/Project Manager
 
 ### Why This Domain?
