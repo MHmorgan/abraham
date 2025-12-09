@@ -1974,6 +1974,351 @@ d/
 
 ---
 
+### Ruby
+
+**Why Ruby fits well:**
+- Exceptional developer ergonomics
+- Rich ecosystem of gems
+- Expressive syntax for domain modeling
+- Strong metaprogramming capabilities
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `thor` | Industry standard, subcommands |
+| CLI (alt) | `dry-cli` | Modern, compositional |
+| Config | `anyway_config` | Env + file + defaults |
+| SQLite | `sqlite3` | Standard gem |
+| SQLite (ORM) | `sequel` | Lightweight, powerful |
+| HTTP | `sinatra` | Classic micro framework |
+| HTTP (alt) | `roda` | Fast, routing tree |
+| JSON | `json` | Stdlib |
+| Logging | `logger` | Stdlib |
+| Colors | `pastel` | Elegant terminal colors |
+| Tables | `tty-table` | Feature-rich tables |
+| Packaging | `bundler` | Dependency management |
+
+**Project Structure:**
+
+```
+ruby/
+├── Gemfile
+├── Gemfile.lock
+├── bin/
+│   └── abraham               # Executable entry point
+├── lib/
+│   ├── abraham.rb            # Main module
+│   ├── abraham/
+│   │   ├── version.rb
+│   │   ├── cli.rb            # Thor application
+│   │   ├── commands/
+│   │   │   ├── init.rb
+│   │   │   ├── config.rb
+│   │   │   ├── project.rb
+│   │   │   └── task.rb
+│   │   ├── config.rb         # Configuration management
+│   │   ├── db/
+│   │   │   ├── connection.rb
+│   │   │   ├── migrate.rb
+│   │   │   └── repository.rb
+│   │   ├── model/
+│   │   │   ├── project.rb
+│   │   │   └── task.rb       # With children association
+│   │   ├── format/
+│   │   │   ├── base.rb       # Strategy base class
+│   │   │   ├── table.rb
+│   │   │   ├── json.rb
+│   │   │   └── tree.rb
+│   │   └── server.rb         # Sinatra API
+│   └── abraham.rb
+├── spec/                     # RSpec tests
+└── abraham.gemspec
+```
+
+**Idiomatic Patterns:**
+- Modules and mixins for shared behavior
+- Duck typing for Strategy pattern
+- Blocks and procs for callbacks
+- Method chaining for fluent APIs
+- `Struct` or plain classes for domain models
+
+**Ruby-Specific Extensions:**
+- Interactive console: `abraham console` (IRB with context)
+- Rake tasks for maintenance operations
+- `--format=yaml` output (native YAML support)
+- Hot reloading in development
+
+---
+
+### OCaml
+
+**Why OCaml fits well:**
+- Strong static typing with inference
+- Algebraic data types perfect for domain modeling
+- Pattern matching for exhaustive handling
+- Excellent for correctness
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `cmdliner` | Declarative, composable |
+| Config | `yojson` | JSON parsing for config |
+| SQLite | `sqlite3-ocaml` | OCaml bindings |
+| SQLite (alt) | `caqti` | Async-capable, connectors |
+| HTTP | `dream` | Modern, easy to use |
+| HTTP (alt) | `cohttp` + `lwt` | Lower-level, flexible |
+| JSON | `yojson` | Common JSON library |
+| JSON (alt) | `ppx_yojson_conv` | Deriving for types |
+| Logging | `logs` | Logging infrastructure |
+| Colors | Custom | ANSI escape sequences |
+| Tables | Custom | Format with Printf |
+| Build | `dune` | Standard build system |
+| Package | `opam` | Package manager |
+
+**Project Structure:**
+
+```
+ocaml/
+├── dune-project
+├── abraham.opam
+├── bin/
+│   ├── dune
+│   └── main.ml               # Entry point
+├── lib/
+│   ├── dune
+│   ├── cli.ml                # Command definitions
+│   ├── cli.mli               # Interface
+│   ├── config.ml
+│   ├── db/
+│   │   ├── db.ml             # Connection
+│   │   ├── migrate.ml
+│   │   └── repo.ml           # Queries
+│   ├── model/
+│   │   ├── project.ml
+│   │   ├── task.ml           # Task with children list
+│   │   └── types.ml          # Shared types
+│   ├── format/
+│   │   ├── formatter.ml      # Module type (Strategy)
+│   │   ├── table.ml
+│   │   ├── json.ml
+│   │   └── tree.ml
+│   └── server/
+│       ├── server.ml         # Dream handlers
+│       └── routes.ml
+└── test/
+    ├── dune
+    └── test_abraham.ml
+```
+
+**Idiomatic Patterns:**
+- Algebraic data types (variants) for Status, Priority
+- Module types (signatures) for Strategy pattern
+- First-class modules for runtime strategy selection
+- Records for domain models
+- `option` type for nullable fields
+- Result monad for error handling
+
+**OCaml-Specific Extensions:**
+- Exhaustive pattern matching (compiler-enforced)
+- Type-safe SQL with Caqti
+- Property-based testing with QCheck
+- Native code compilation for performance
+
+---
+
+### Elixir
+
+**Why Elixir fits well:**
+- Excellent concurrency model (BEAM VM)
+- Pattern matching and immutability
+- Supervisor trees for reliability
+- Strong web framework ecosystem
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `optimus` | Feature-rich CLI parsing |
+| CLI (alt) | Custom | escript with OptionParser |
+| Config | `config` | Built-in config system |
+| SQLite | `exqlite` | NIF-based SQLite |
+| SQLite (alt) | `ecto_sqlite3` | Ecto adapter |
+| HTTP | `plug` + `bandit` | Composable, modern |
+| HTTP (alt) | `phoenix` | Full framework (overkill) |
+| JSON | `jason` | Fast JSON encoding |
+| Logging | `logger` | Built-in |
+| Colors | `io_ansi` | Built-in ANSI |
+| Tables | `table_rex` | Table formatting |
+| Build | `mix` | Standard build tool |
+
+**Project Structure:**
+
+```
+elixir/
+├── mix.exs
+├── mix.lock
+├── config/
+│   ├── config.exs
+│   └── runtime.exs
+├── lib/
+│   ├── abraham.ex            # Application entry
+│   ├── abraham/
+│   │   ├── cli.ex            # CLI parsing, dispatch
+│   │   ├── cli/
+│   │   │   ├── init.ex
+│   │   │   ├── config.ex
+│   │   │   ├── project.ex
+│   │   │   └── task.ex
+│   │   ├── config.ex         # Runtime config
+│   │   ├── db/
+│   │   │   ├── repo.ex       # Ecto repo or raw queries
+│   │   │   ├── migrate.ex
+│   │   │   └── project.ex
+│   │   │   └── task.ex
+│   │   ├── model/
+│   │   │   ├── project.ex    # Struct + changeset
+│   │   │   └── task.ex       # With subtasks
+│   │   ├── format/
+│   │   │   ├── formatter.ex  # Behaviour (Strategy)
+│   │   │   ├── table.ex
+│   │   │   ├── json.ex
+│   │   │   └── tree.ex
+│   │   └── server/
+│   │       ├── router.ex     # Plug router
+│   │       └── endpoint.ex
+├── priv/
+│   └── repo/
+│       └── migrations/
+└── test/
+    ├── test_helper.exs
+    └── abraham_test.exs
+```
+
+**Idiomatic Patterns:**
+- Behaviours for Strategy pattern (`@callback`)
+- Structs with embedded children for Composite
+- Pattern matching in function heads
+- Pipe operator for transformations
+- GenServer for stateful operations (optional)
+- Supervision trees for server reliability
+
+**Elixir-Specific Extensions:**
+- Live dashboard for server monitoring
+- Distributed operation across nodes
+- Hot code upgrades
+- `:observer` for runtime introspection
+- Escript for single-file distribution
+
+---
+
+### TypeScript (Deno)
+
+**Why Deno fits well:**
+- First-class TypeScript support
+- Secure by default (permissions)
+- Single executable compilation
+- Modern standard library
+- URL-based imports (no node_modules)
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `@std/cli` | Deno stdlib flags parsing |
+| CLI (alt) | `cliffy` | Full-featured, subcommands |
+| Config | Custom | JSON + Deno.env |
+| SQLite | `@db/sqlite` | Deno SQLite via FFI |
+| SQLite (alt) | `sqlite3` | WASM-based alternative |
+| HTTP | `@std/http` | Deno stdlib server |
+| HTTP (alt) | `hono` | Fast, lightweight framework |
+| JSON | Built-in | Native JSON support |
+| Logging | `@std/log` | Deno stdlib logging |
+| Colors | `@std/fmt/colors` | Deno stdlib colors |
+| Tables | Custom | Simple implementation |
+| Test | `@std/testing` | Deno stdlib testing |
+
+**Project Structure:**
+
+```
+typescript/
+├── deno.json                 # Config, tasks, imports
+├── deno.lock
+├── mod.ts                    # Main entry point
+├── src/
+│   ├── cli/
+│   │   ├── mod.ts            # CLI setup with cliffy
+│   │   ├── init.ts
+│   │   ├── config.ts
+│   │   ├── project.ts
+│   │   └── task.ts
+│   ├── config/
+│   │   └── mod.ts            # Config loading
+│   ├── db/
+│   │   ├── mod.ts            # Connection
+│   │   ├── migrate.ts
+│   │   ├── project.ts        # Project queries
+│   │   └── task.ts           # Task queries
+│   ├── model/
+│   │   ├── mod.ts
+│   │   ├── project.ts        # Type definitions
+│   │   └── task.ts           # Task with children
+│   ├── format/
+│   │   ├── mod.ts            # Formatter interface
+│   │   ├── table.ts
+│   │   ├── json.ts
+│   │   └── tree.ts
+│   ├── server/
+│   │   ├── mod.ts            # HTTP server setup
+│   │   └── routes.ts         # API routes
+│   └── log.ts                # Logging setup
+└── tests/
+    ├── cli_test.ts
+    ├── db_test.ts
+    └── api_test.ts
+```
+
+**Idiomatic Patterns:**
+- Interfaces for Strategy pattern
+- Classes or type aliases for domain models
+- Discriminated unions for enums with data
+- `async/await` throughout
+- Type guards for runtime validation
+- Zod for schema validation (optional)
+
+**Deno-Specific Extensions:**
+- `deno compile` for single binary distribution
+- Permission flags (`--allow-read`, `--allow-net`)
+- Built-in test runner and formatter
+- Import maps for dependency management
+- `deno task` for scripts (in deno.json)
+- WebAssembly support for SQLite
+
+**deno.json example:**
+
+```json
+{
+    "name": "@abraham/cli",
+    "version": "0.1.0",
+    "exports": "./mod.ts",
+    "tasks": {
+        "dev": "deno run --allow-read --allow-write --allow-env --allow-ffi mod.ts",
+        "build": "deno compile --allow-read --allow-write --allow-env --allow-ffi --output abraham mod.ts",
+        "test": "deno test --allow-read --allow-write --allow-env --allow-ffi",
+        "serve": "deno run --allow-read --allow-write --allow-env --allow-ffi --allow-net mod.ts serve"
+    },
+    "imports": {
+        "@std/": "jsr:@std/",
+        "@db/sqlite": "jsr:@db/sqlite",
+        "cliffy/": "https://deno.land/x/cliffy@v1.0.0-rc.3/",
+        "hono": "jsr:@hono/hono"
+    }
+}
+```
+
+---
+
 ## Language Comparison Summary
 
 | Language | Binary | CLI Library | SQLite | HTTP | Difficulty |
@@ -1987,13 +2332,8 @@ d/
 | **C++** | Single | CLI11 | SQLiteCpp | cpp-httplib | Medium |
 | **C** | Single | argtable3 | sqlite3 | libmicrohttpd | Hard |
 | **D** | Single | darg | d2sqlite3 | vibe.d | Medium |
+| **Ruby** | Script | thor | sqlite3 | sinatra | Easy |
+| **OCaml** | Single | cmdliner | sqlite3-ocaml | dream | Hard |
+| **Elixir** | Script | optimus | exqlite | plug | Medium |
+| **TypeScript** | Single | cliffy | @db/sqlite | hono | Easy |
 
----
-
-## Next Steps
-
-1. **Finalize domain choice**: Confirm task/project manager or pivot
-2. **Set up repository structure**: Create directories for test and first language
-3. **Implement test harness**: Build `test.nu` and assertion library
-4. **Choose first language**: Recommend Rust or Go for first implementation
-5. **Phase 1 implementation**: CLI foundation with tests
