@@ -2311,6 +2311,228 @@ typescript/
 
 ---
 
+### Kotlin/JVM
+
+**Why Kotlin/JVM fits well:**
+- Modern, concise syntax with null safety
+- Excellent Java interop for mature libraries
+- Coroutines for async operations
+- Strong type system with data classes
+- Wide adoption and tooling support
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `clikt` | Kotlin-idiomatic, multiplatform |
+| CLI (alt) | `picocli` | Java standard, annotation-based |
+| Config | `hoplite` | Type-safe config loading |
+| SQLite | `sqlite-jdbc` | Standard JDBC driver |
+| SQLite (ORM) | `exposed` | Kotlin SQL DSL |
+| HTTP | `ktor-server` | Kotlin-native async framework |
+| HTTP (alt) | `http4k` | Functional, testable |
+| JSON | `kotlinx.serialization` | Multiplatform, compile-time |
+| Logging | `kotlin-logging` | SLF4J wrapper, idiomatic |
+| Colors | `mordant` | Rich terminal output |
+| Tables | `mordant` | Includes table formatting |
+| Build | `gradle` | Standard build system |
+
+**Project Structure:**
+
+```
+kotlin-jvm/
+├── build.gradle.kts
+├── settings.gradle.kts
+├── gradle.properties
+└── src/
+    ├── main/
+    │   └── kotlin/
+    │       └── abraham/
+    │           ├── Main.kt           # Entry point
+    │           ├── cli/
+    │           │   ├── Cli.kt        # Clikt application
+    │           │   ├── InitCmd.kt
+    │           │   ├── ConfigCmd.kt
+    │           │   ├── ProjectCmd.kt
+    │           │   └── TaskCmd.kt
+    │           ├── config/
+    │           │   └── Config.kt     # Configuration loading
+    │           ├── db/
+    │           │   ├── Database.kt   # Connection management
+    │           │   ├── Migrate.kt
+    │           │   ├── ProjectRepo.kt
+    │           │   └── TaskRepo.kt
+    │           ├── model/
+    │           │   ├── Project.kt    # Data class
+    │           │   └── Task.kt       # Data class with children
+    │           ├── format/
+    │           │   ├── Formatter.kt  # Interface (Strategy)
+    │           │   ├── TableFmt.kt
+    │           │   ├── JsonFmt.kt
+    │           │   └── TreeFmt.kt
+    │           └── server/
+    │               ├── Server.kt     # Ktor application
+    │               └── Routes.kt     # API routes
+    └── test/
+        └── kotlin/
+            └── abraham/
+                └── ...
+```
+
+**Idiomatic Patterns:**
+- Data classes for domain models with `copy()` for immutability
+- Sealed classes for Status/Priority enums with exhaustive `when`
+- Interfaces for Strategy pattern
+- Extension functions for fluent APIs
+- Coroutines for async database and HTTP operations
+- DSL builders for configuration and queries
+
+**Kotlin/JVM-Specific Extensions:**
+- GraalVM native-image for faster startup (optional)
+- `--format=yaml` using SnakeYAML
+- Interactive REPL via `ki` (Kotlin Interactive)
+- JMX monitoring for server mode
+
+---
+
+### Kotlin/Native
+
+**Why Kotlin/Native fits well:**
+- Single binary without JVM dependency
+- Shared code with Kotlin/JVM via multiplatform
+- Native performance with Kotlin ergonomics
+- C interop for SQLite
+- Cross-platform compilation (macOS, Linux, Windows)
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `clikt` | Multiplatform, works on Native |
+| Config | `kotlinx.serialization` | JSON config parsing |
+| SQLite | `sqlite3` (C interop) | Direct C API bindings |
+| SQLite (alt) | `sqldelight` | Multiplatform, generated code |
+| HTTP | `ktor-server-cio` | Pure Kotlin, no JVM deps |
+| JSON | `kotlinx.serialization` | Multiplatform, compile-time |
+| Logging | Custom | Printf-style to stderr |
+| Colors | Custom | ANSI escape sequences |
+| Tables | Custom | Manual formatting |
+| Build | `gradle` | With kotlin-multiplatform plugin |
+
+**Project Structure:**
+
+```
+kotlin-native/
+├── build.gradle.kts
+├── settings.gradle.kts
+└── src/
+    ├── nativeMain/
+    │   └── kotlin/
+    │       └── abraham/
+    │           ├── Main.kt           # Entry point (main fun)
+    │           ├── cli/
+    │           │   ├── Cli.kt        # Clikt application
+    │           │   ├── InitCmd.kt
+    │           │   ├── ConfigCmd.kt
+    │           │   ├── ProjectCmd.kt
+    │           │   └── TaskCmd.kt
+    │           ├── config/
+    │           │   └── Config.kt     # JSON-based config
+    │           ├── db/
+    │           │   ├── Sqlite.kt     # C interop wrapper
+    │           │   ├── Migrate.kt
+    │           │   ├── ProjectRepo.kt
+    │           │   └── TaskRepo.kt
+    │           ├── model/
+    │           │   ├── Project.kt
+    │           │   └── Task.kt
+    │           ├── format/
+    │           │   ├── Formatter.kt
+    │           │   ├── TableFmt.kt
+    │           │   ├── JsonFmt.kt
+    │           │   └── TreeFmt.kt
+    │           └── server/
+    │               ├── Server.kt
+    │               └── Routes.kt
+    ├── nativeTest/
+    │   └── kotlin/
+    │       └── abraham/
+    │           └── ...
+    └── nativeInterop/
+        └── cinterop/
+            └── sqlite3.def           # C interop definition
+```
+
+**Idiomatic Patterns:**
+- Expect/actual declarations for platform-specific code
+- Data classes for domain models
+- Sealed classes for enums with exhaustive matching
+- Interfaces for Strategy pattern
+- `memScoped` for native memory management
+- `@SharedImmutable` for frozen objects (legacy memory model)
+
+**Kotlin/Native-Specific Extensions:**
+- Static linking for fully standalone binary
+- Cross-compilation to multiple targets
+- C library wrapping via `cinterop`
+- Minimal binary size with `-opt` and LTO
+- Integration with system libraries (readline, ncurses)
+
+**C Interop Definition (`sqlite3.def`):**
+
+```
+headers = sqlite3.h
+package = sqlite3
+linkerOpts.linux = -lsqlite3
+linkerOpts.macos = -lsqlite3
+linkerOpts.mingw = -lsqlite3
+```
+
+**build.gradle.kts example:**
+
+```kotlin
+plugins {
+    kotlin("multiplatform") version "2.0.0"
+    kotlin("plugin.serialization") version "2.0.0"
+}
+
+kotlin {
+    val hostOs = System.getProperty("os.name")
+    val nativeTarget = when {
+        hostOs == "Mac OS X" -> macosArm64("native")
+        hostOs == "Linux" -> linuxX64("native")
+        hostOs.startsWith("Windows") -> mingwX64("native")
+        else -> throw GradleException("Unsupported OS: $hostOs")
+    }
+
+    nativeTarget.apply {
+        compilations.getByName("main") {
+            cinterops {
+                val sqlite3 by creating {
+                    defFile("src/nativeInterop/cinterop/sqlite3.def")
+                }
+            }
+        }
+        binaries {
+            executable("abraham") {
+                entryPoint = "abraham.main"
+            }
+        }
+    }
+
+    sourceSets {
+        val nativeMain by getting {
+            dependencies {
+                implementation("com.github.ajalt.clikt:clikt:4.2.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+            }
+        }
+    }
+}
+```
+
+---
+
 ## Language Comparison Summary
 
 | Language | Binary | CLI Library | SQLite | HTTP | Difficulty |
@@ -2328,4 +2550,6 @@ typescript/
 | **OCaml** | Single | cmdliner | sqlite3-ocaml | dream | Hard |
 | **Elixir** | Script | optimus | exqlite | plug | Medium |
 | **TypeScript** | Single | cliffy | @db/sqlite | hono | Easy |
+| **Kotlin/JVM** | JAR | clikt | sqlite-jdbc | ktor | Easy |
+| **Kotlin/Native** | Single | clikt | C interop | ktor-cio | Medium |
 
