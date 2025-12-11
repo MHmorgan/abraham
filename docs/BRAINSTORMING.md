@@ -2996,6 +2996,285 @@ type Formatter = Task list -> string
 
 ---
 
+### Dart
+
+**Why Dart fits well:**
+- Familiar syntax for Java/TypeScript developers
+- Sound null safety prevents null pointer errors
+- Single binary compilation via `dart compile exe`
+- Strong async support with Future/Stream
+- Growing ecosystem from Flutter popularity
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `args` | Official, simple argument parsing |
+| CLI (alt) | `dcli` | Full-featured, colors, tables, prompts |
+| Config | Custom | JSON + Platform.environment |
+| SQLite | `sqlite3` | FFI-based bindings |
+| SQLite (alt) | `drift` | Reactive ORM with code generation |
+| HTTP | `shelf` | Middleware-based server |
+| HTTP (alt) | `dart_frog` | Opinionated framework from VGV |
+| JSON | `dart:convert` | Built-in JSON support |
+| JSON (alt) | `json_serializable` | Code generation for types |
+| Logging | `logging` | Official logging package |
+| Colors | `dcli` | Includes terminal colors |
+| Colors (alt) | `ansicolor` | Simple ANSI colors |
+| Tables | Custom | Simple formatting |
+| Build | `dart compile exe` | Built-in native compilation |
+
+**Project Structure:**
+
+```
+dart/
+├── pubspec.yaml
+├── pubspec.lock
+├── bin/
+│   └── abraham.dart            # Entry point
+├── lib/
+│   ├── abraham.dart            # Main library export
+│   └── src/
+│       ├── cli/
+│       │   ├── cli.dart        # Command setup
+│       │   ├── init_cmd.dart
+│       │   ├── config_cmd.dart
+│       │   ├── project_cmd.dart
+│       │   └── task_cmd.dart
+│       ├── config/
+│       │   └── config.dart     # Configuration loading
+│       ├── db/
+│       │   ├── database.dart   # SQLite connection
+│       │   ├── migrations.dart
+│       │   ├── project_repo.dart
+│       │   └── task_repo.dart
+│       ├── model/
+│       │   ├── project.dart    # Class with JSON serialization
+│       │   ├── task.dart       # Class with children list
+│       │   ├── status.dart     # Enum
+│       │   └── priority.dart   # Enum
+│       ├── format/
+│       │   ├── formatter.dart  # Abstract class (Strategy)
+│       │   ├── table_fmt.dart
+│       │   ├── json_fmt.dart
+│       │   └── tree_fmt.dart
+│       └── server/
+│           ├── server.dart     # Shelf application
+│           └── handlers.dart   # Request handlers
+└── test/
+    └── ...
+```
+
+**Idiomatic Patterns:**
+- Classes with factory constructors for domain models
+- Abstract classes for Strategy pattern
+- Null safety with `?` and `required` keywords
+- `async/await` for database and HTTP operations
+- Extension methods for fluent APIs
+- Enums with enhanced features (Dart 2.17+)
+- `freezed` for immutable data classes (optional)
+
+**Dart-Specific Extensions:**
+- Hot reload in development (`dart run --enable-vm-service`)
+- JSON serialization via `json_serializable`
+- Native executable for distribution
+- Stream-based table output for large datasets
+- `dart:io` for file and process operations
+
+**pubspec.yaml example:**
+
+```yaml
+name: abraham
+description: A polyglot CLI task manager
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  args: ^2.4.2
+  sqlite3: ^2.3.0
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
+  logging: ^1.2.0
+  path: ^1.8.3
+
+dev_dependencies:
+  test: ^1.24.0
+  build_runner: ^2.4.0
+  json_serializable: ^6.7.1
+```
+
+---
+
+### Swift
+
+**Why Swift fits well:**
+- Modern, expressive syntax with optionals
+- Strong type system with enums and generics
+- Excellent CLI library (swift-argument-parser)
+- Modern concurrency with async/await and actors
+- First-class on macOS, good Linux support
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `swift-argument-parser` | Apple, declarative, type-safe |
+| Config | Custom | Codable + JSON |
+| SQLite | `SQLite.swift` | Type-safe query builder |
+| SQLite (alt) | `GRDB.swift` | Full-featured SQLite toolkit |
+| HTTP | `Vapor` | Full-featured, most popular |
+| HTTP (alt) | `Hummingbird` | Lightweight, modular |
+| JSON | `Codable` | Built-in, first-class |
+| Logging | `swift-log` | Apple, standard API |
+| Colors | `Rainbow` | Chainable terminal colors |
+| Tables | Custom | Manual formatting |
+| Build | Swift Package Manager | Built-in |
+
+**Project Structure:**
+
+```
+swift/
+├── Package.swift
+├── Sources/
+│   └── Abraham/
+│       ├── Abraham.swift         # Entry point
+│       ├── CLI/
+│       │   ├── CLI.swift         # ArgumentParser command
+│       │   ├── InitCommand.swift
+│       │   ├── ConfigCommand.swift
+│       │   ├── ProjectCommand.swift
+│       │   └── TaskCommand.swift
+│       ├── Config/
+│       │   └── Config.swift      # Codable configuration
+│       ├── DB/
+│       │   ├── Database.swift    # SQLite connection
+│       │   ├── Migrations.swift
+│       │   ├── ProjectRepo.swift
+│       │   └── TaskRepo.swift
+│       ├── Model/
+│       │   ├── Project.swift     # Codable struct
+│       │   ├── Task.swift        # Struct with children
+│       │   ├── Status.swift      # Enum
+│       │   └── Priority.swift    # Enum
+│       ├── Format/
+│       │   ├── Formatter.swift   # Protocol (Strategy)
+│       │   ├── TableFormatter.swift
+│       │   ├── JSONFormatter.swift
+│       │   └── TreeFormatter.swift
+│       └── Server/
+│           ├── Server.swift      # Vapor application
+│           └── Routes.swift      # Route handlers
+└── Tests/
+    └── AbrahamTests/
+        └── ...
+```
+
+**Idiomatic Patterns:**
+- Structs for value-type domain models
+- Protocols for Strategy pattern
+- Enums with associated values for complex states
+- Optionals (`?`) for nullable fields
+- `async/await` for concurrent operations
+- `Codable` for JSON serialization
+- Extensions for adding functionality
+- Property wrappers for validation (optional)
+
+**Swift-Specific Extensions:**
+- Native macOS/Linux binaries
+- Actors for thread-safe state
+- `AsyncStream` for streaming results
+- Swift Testing framework (Swift 6+)
+- Integration with system keychain (macOS)
+
+**Package.swift example:**
+
+```swift
+// swift-tools-version: 5.9
+import PackageDescription
+
+let package = Package(
+    name: "Abraham",
+    platforms: [
+        .macOS(.v13)
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
+        .package(url: "https://github.com/stephencelis/SQLite.swift", from: "0.15.0"),
+        .package(url: "https://github.com/vapor/vapor", from: "4.92.0"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.5.0"),
+        .package(url: "https://github.com/onevcat/Rainbow", from: "4.0.0"),
+    ],
+    targets: [
+        .executableTarget(
+            name: "abraham",
+            dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "SQLite", package: "SQLite.swift"),
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "Rainbow", package: "Rainbow"),
+            ]
+        ),
+        .testTarget(
+            name: "AbrahamTests",
+            dependencies: ["abraham"]
+        ),
+    ]
+)
+```
+
+**CLI example with swift-argument-parser:**
+
+```swift
+import ArgumentParser
+
+@main
+struct Abraham: AsyncParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "abraham",
+        abstract: "A polyglot CLI task manager",
+        version: "0.1.0",
+        subcommands: [
+            Init.self,
+            Config.self,
+            Project.self,
+            Task.self,
+            Serve.self,
+        ]
+    )
+}
+
+struct Task: AsyncParsableCommand {
+    static let configuration = CommandConfiguration(
+        abstract: "Manage tasks",
+        subcommands: [Add.self, List.self, Show.self, Edit.self, Done.self, Delete.self]
+    )
+    
+    struct Add: AsyncParsableCommand {
+        @Argument(help: "Task title")
+        var title: String
+        
+        @Option(name: [.short, .customLong("project")], help: "Project ID")
+        var projectId: Int?
+        
+        @Option(help: "Priority level")
+        var priority: Priority = .medium
+        
+        @Option(help: "Due date (YYYY-MM-DD)")
+        var due: String?
+        
+        func run() async throws {
+            // Implementation
+        }
+    }
+}
+```
+
+---
+
 ## Language Comparison Summary
 
 | Language | Binary | CLI Library | SQLite | HTTP | Difficulty |
@@ -3019,4 +3298,6 @@ type Formatter = Task list -> string
 | **Clojure** | JAR | cli-matic | next.jdbc | reitit | Medium |
 | **C#** | Single | System.CommandLine | Microsoft.Data.Sqlite | Minimal APIs | Easy |
 | **F#** | Single | Argu | Microsoft.Data.Sqlite | Giraffe | Medium |
+| **Dart** | Single | args | sqlite3 | shelf | Easy |
+| **Swift** | Single | swift-argument-parser | SQLite.swift | Vapor | Medium |
 

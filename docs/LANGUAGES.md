@@ -3087,6 +3087,353 @@ that provide idiomatic APIs. The community emphasizes type safety and correctnes
 
 ---
 
+## Dart
+
+### Strengths
+
+| Category | Details |
+|----------|---------|
+| **CLI Ecosystem** | `args` and `dcli` provide solid CLI tooling. `dcli` offers a complete CLI framework with colors, tables, and prompts. |
+| **Type System** | Sound null safety. Strong static typing with inference. Familiar to Java/C# developers. |
+| **Compilation** | `dart compile exe` produces single native executables. No runtime required. |
+| **Async** | First-class `async/await` with `Future` and `Stream`. Isolates for parallelism. |
+| **Ecosystem** | pub.dev has extensive packages. Strong backing from Google. Flutter popularity drives ecosystem growth. |
+
+### Weaknesses
+
+| Category | Details |
+|----------|---------|
+| **SQLite** | `sqlite3` package works well but requires native library. `sqflite` is Flutter-focused. |
+| **HTTP Servers** | `shelf` is capable but less mature than Go/Rust options. Dart excels more as a client. |
+| **Binary Size** | Native executables are larger (~10-20MB) than Go or Rust. |
+| **CLI Adoption** | Dart is primarily known for Flutter. CLI tooling is less visible but functional. |
+
+### Project Fit Assessment
+
+**Good fit.** Dart's familiar syntax (similar to Java/TypeScript) and null safety
+make it approachable. The `dart compile exe` feature enables single-binary
+distribution. Good choice for Flutter developers or those familiar with
+Java/TypeScript.
+
+**Difficulty: Easy**
+
+### Recommended Stack
+
+```
+CLI:     args (or dcli for full-featured)
+Config:  Custom (JSON + Platform.environment)
+SQLite:  sqlite3
+HTTP:    shelf
+JSON:    dart:convert
+Logging: logging
+Colors:  dcli (or ansicolor)
+Tables:  dcli (or Custom)
+Build:   dart compile exe
+```
+
+### Library Ecosystem
+
+Dart packages are available via pub.dev. The ecosystem benefits from Flutter's
+popularity, though some packages are Flutter-specific. Pure Dart packages work
+well for CLI applications.
+
+#### CLI & Configuration
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `args` | CLI parsing | Official. Simple, declarative argument parsing. |
+| `dcli` | CLI framework | Full-featured. Colors, tables, prompts, spinners. |
+| `console` | Terminal | Low-level terminal control. Colors, cursor. |
+| `interact` | Prompts | Interactive prompts and confirmations. |
+| `dotenv` | Environment | Load `.env` files. |
+| `yaml` | YAML | YAML parsing for config files. |
+| `toml` | TOML | TOML parser. |
+| `json5` | JSON5 | Extended JSON parsing. |
+
+#### Database
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `sqlite3` | SQLite | FFI-based SQLite bindings. Synchronous API. |
+| `drift` | ORM | Reactive persistence. SQLite and web. |
+| `stormberry` | ORM | Code-generation based ORM. |
+| `postgres` | PostgreSQL | PostgreSQL driver. |
+| `mysql_client` | MySQL | MySQL driver. |
+| `redis` | Redis | Redis client. |
+| `mongo_dart` | MongoDB | MongoDB driver. |
+| `hive` | NoSQL | Fast key-value database. No native deps. |
+| `isar` | NoSQL | High-performance local database. |
+
+#### HTTP & Web
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `shelf` | HTTP server | Middleware-based. Modular. |
+| `shelf_router` | Routing | Router for shelf. |
+| `dart_frog` | Web framework | VGV's opinionated framework. |
+| `alfred` | Web framework | Express-like. Simple. |
+| `conduit` | Web framework | Full-featured (formerly Aqueduct). |
+| `http` | HTTP client | Official HTTP client. |
+| `dio` | HTTP client | Full-featured. Interceptors. |
+| `chopper` | HTTP client | Code-generation based. Type-safe. |
+| `web_socket_channel` | WebSocket | WebSocket abstraction. |
+
+#### JSON & Serialization
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `dart:convert` | JSON | Built-in. Basic JSON. |
+| `json_serializable` | JSON | Code generation. Most popular. |
+| `freezed` | Immutable | Immutable classes with JSON. |
+| `built_value` | Immutable | Value types with serialization. |
+| `protobuf` | Protocol Buffers | Protobuf support. |
+| `messagepack` | MessagePack | Binary serialization. |
+
+#### Logging & Output
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `logging` | Logging | Official logging package. |
+| `logger` | Logging | Simple, pretty logging. |
+| `dcli` | Output | Tables, colors, progress bars. |
+| `ansicolor` | Colors | Simple ANSI colors. |
+| `chalkdart` | Colors | Chalk-style coloring. |
+| `cli_util` | CLI utilities | Progress bars, spinners. |
+| `tabular` | Tables | Table formatting. |
+
+#### Testing
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `test` | Testing | Official test framework. |
+| `mockito` | Mocking | Mocking library. |
+| `mocktail` | Mocking | Modern mocking (no codegen). |
+| `fake_async` | Async testing | Control async execution. |
+| `coverage` | Coverage | Code coverage. |
+| `spec` | BDD testing | describe/it syntax. |
+
+#### Async & Concurrency
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `dart:async` | Async | Built-in Future and Stream. |
+| `dart:isolate` | Parallelism | Isolates for parallelism. |
+| `async` | Utilities | Async utilities. Debounce, throttle. |
+| `rxdart` | Reactive | Reactive extensions for Dart. |
+| `stream_channel` | Channels | Two-way communication. |
+| `pool` | Resource pooling | Manage limited resources. |
+
+#### Utilities
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `path` | Paths | Official. Cross-platform paths. |
+| `file` | Filesystem | File system abstraction. |
+| `uuid` | UUID | UUID generation. |
+| `ulid` | ULID | ULID generation. |
+| `intl` | Internationalization | Formatting, dates, pluralization. |
+| `quiver` | Utilities | Collection of utilities. |
+| `collection` | Collections | Extended collection utilities. |
+| `meta` | Annotations | Static analysis annotations. |
+| `glob` | Globs | Glob pattern matching. |
+| `archive` | Compression | ZIP, tar, gzip. |
+
+#### Cryptography & Security
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `crypto` | Hashing | SHA, MD5, HMAC. |
+| `encrypt` | Encryption | AES, RSA encryption. |
+| `pointycastle` | Crypto | Full crypto library. |
+| `jose` | JWT | JOSE/JWT implementation. |
+| `dart_jsonwebtoken` | JWT | Simple JWT library. |
+| `bcrypt` | Password | bcrypt hashing. |
+
+#### Build & Tooling
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `dart compile exe` | Compilation | Create native executables. |
+| `dart format` | Formatting | Built-in formatter. |
+| `dart analyze` | Linting | Built-in static analysis. |
+| `dart doc` | Documentation | Generate API docs. |
+| `build_runner` | Code generation | Build system for codegen. |
+| `grinder` | Task runner | Make-like task runner. |
+
+---
+
+## Swift
+
+### Strengths
+
+| Category | Details |
+|----------|---------|
+| **Modern Syntax** | Clean, expressive syntax. Optionals for null safety. Protocol-oriented design. |
+| **Type System** | Strong static typing with inference. Enums with associated values. Generics. |
+| **CLI Tooling** | `swift-argument-parser` is excellent—declarative, type-safe, auto-generated help. |
+| **Concurrency** | Modern `async/await` with structured concurrency (actors, tasks). |
+| **Apple Ecosystem** | First-class on macOS. Swift Package Manager is mature. |
+
+### Weaknesses
+
+| Category | Details |
+|----------|---------|
+| **Cross-Platform** | Linux support is good but Windows is experimental. macOS-first. |
+| **SQLite** | Works via C interop, but less convenient than Go or Python. |
+| **Binary Size** | Larger than Go or Rust due to Swift runtime (unless static linking). |
+| **Server-Side Adoption** | Growing but smaller than established server languages. |
+
+### Project Fit Assessment
+
+**Good fit, especially on macOS/Linux.** Swift's modern syntax and powerful
+type system make it pleasant to use. `swift-argument-parser` provides excellent
+CLI support. Great choice for Apple ecosystem developers wanting to explore
+CLI development.
+
+**Difficulty: Medium**
+
+### Recommended Stack
+
+```
+CLI:     swift-argument-parser
+Config:  Custom (Codable + JSON)
+SQLite:  SQLite.swift (or GRDB)
+HTTP:    Vapor (or Hummingbird)
+JSON:    Codable (built-in)
+Logging: swift-log
+Colors:  Rainbow (or ANSITerminal)
+Tables:  Custom
+Build:   Swift Package Manager
+```
+
+### Library Ecosystem
+
+Swift packages are available via Swift Package Manager. The ecosystem is
+strongest on Apple platforms but server-side Swift is growing. Vapor and
+related packages provide good server capabilities.
+
+#### CLI & Configuration
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `swift-argument-parser` | CLI framework | Apple. Declarative. Type-safe. Excellent. |
+| `Commander` | CLI framework | Older but simple. |
+| `Commandant` | CLI framework | Protocol-oriented. |
+| `Yams` | YAML | YAML parsing. |
+| `TOMLKit` | TOML | TOML parsing. |
+| `SwiftDotenv` | Environment | Load `.env` files. |
+| `Files` | Filesystem | File system abstraction. |
+
+#### Database
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `SQLite.swift` | SQLite | Type-safe SQLite. Query builder. |
+| `GRDB.swift` | SQLite | Full-featured SQLite toolkit. |
+| `SQLite3` | SQLite | C interop. Direct API. |
+| `Fluent` | ORM | Vapor's ORM. Multiple databases. |
+| `PostgresNIO` | PostgreSQL | Async PostgreSQL. |
+| `RediStack` | Redis | Async Redis client. |
+| `MongoSwift` | MongoDB | Official MongoDB driver. |
+
+#### HTTP & Web
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Vapor` | Web framework | Most popular. Full-featured. |
+| `Hummingbird` | Web framework | Lightweight. Modular. |
+| `Kitura` | Web framework | IBM. Less active now. |
+| `Perfect` | Web framework | Older framework. |
+| `AsyncHTTPClient` | HTTP client | SwiftNIO-based. Official. |
+| `Alamofire` | HTTP client | Popular (originally iOS). |
+| `URLSession` | HTTP client | Foundation. Works on all platforms. |
+| `WebSocketKit` | WebSocket | WebSocket support. |
+
+#### JSON & Serialization
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Codable` | JSON | Built-in. First-class. |
+| `JSONEncoder/Decoder` | JSON | Foundation. Standard. |
+| `SwiftyJSON` | JSON | Dynamic JSON (older style). |
+| `AnyCodable` | Dynamic | Type-erased Codable. |
+| `MessagePack.swift` | MessagePack | Binary serialization. |
+| `SwiftProtobuf` | Protocol Buffers | Google's protobuf for Swift. |
+
+#### Logging & Output
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `swift-log` | Logging | Apple. Standard logging API. |
+| `Logging` | Logging | Same as swift-log. |
+| `Rainbow` | Colors | Terminal colors. Chainable. |
+| `ANSITerminal` | Terminal | Colors, cursor control. |
+| `Chalk` | Colors | Simple terminal colors. |
+| `Progress.swift` | Progress bars | Progress indication. |
+| `TextTable` | Tables | Text table formatting. |
+| `Splash` | Syntax highlighting | Syntax highlighting. |
+
+#### Testing
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `XCTest` | Testing | Built-in test framework. |
+| `swift-testing` | Testing | New Apple framework (Swift 6+). |
+| `Quick` | BDD testing | Behavior-driven testing. |
+| `Nimble` | Matchers | Expressive matchers. |
+| `Mockingbird` | Mocking | Mocking framework. |
+| `Cuckoo` | Mocking | Generate mocks. |
+| `OHHTTPStubs` | HTTP mocking | Stub HTTP requests. |
+
+#### Async & Concurrency
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `async/await` | Async | Built-in (Swift 5.5+). |
+| `actors` | Concurrency | Built-in actor model. |
+| `swift-nio` | Networking | Event-driven networking. Foundation for Vapor. |
+| `AsyncAlgorithms` | Async | Apple. Async sequences. |
+| `Combine` | Reactive | Apple's reactive framework (Apple platforms). |
+| `OpenCombine` | Reactive | Open-source Combine. Cross-platform. |
+
+#### Utilities
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Foundation` | Utilities | Standard library. Dates, paths, data. |
+| `swift-collections` | Collections | Apple. Deque, ordered sets/dicts. |
+| `swift-algorithms` | Algorithms | Apple. Algorithm extensions. |
+| `SwiftDate` | Date/time | Powerful date handling. |
+| `Regex` | Regex | Swift 5.7+ regex. |
+| `PathKit` | Paths | Path manipulation. |
+| `Zip` | Compression | ZIP archives. |
+| `SwiftSoup` | HTML | HTML parsing. |
+| `Ink` | Markdown | Markdown parsing. |
+| `Stencil` | Templates | Template language. |
+
+#### Cryptography & Security
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `CryptoKit` | Crypto | Apple. AES, SHA, signatures. |
+| `swift-crypto` | Crypto | Apple. Cross-platform CryptoKit. |
+| `Crypto` | Crypto | Same as swift-crypto. |
+| `JWTKit` | JWT | JWT creation and validation. |
+| `BCrypt` | Password | bcrypt hashing. |
+
+#### Build & Tooling
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `swift build` | Building | Built-in build system. |
+| `swift package` | Dependencies | Built-in package manager. |
+| `swift test` | Testing | Built-in test runner. |
+| `swift format` | Formatting | Official formatter. |
+| `SwiftLint` | Linting | Community linter. |
+| `swift-docc` | Documentation | Apple documentation tool. |
+
+---
+
 ## Comparison Matrix
 
 ### Core Requirements
@@ -3112,6 +3459,8 @@ that provide idiomatic APIs. The community emphasizes type safety and correctnes
 | Clojure | cli-matic | next.jdbc | reitit | clansi | No (JAR/GraalVM) |
 | C# | System.CommandLine | Microsoft.Data.Sqlite | Minimal APIs | Spectre.Console | Yes (AOT) |
 | F# | Argu | Microsoft.Data.Sqlite | Giraffe | Spectre.Console | Yes (AOT) |
+| Dart | args | sqlite3 | shelf | dcli | Yes |
+| Swift | swift-argument-parser | SQLite.swift | Vapor | Rainbow | Yes |
 
 ### Developer Experience
 
@@ -3136,24 +3485,28 @@ that provide idiomatic APIs. The community emphasizes type safety and correctnes
 | Clojure | Medium | High | Good | Medium |
 | C# | Low | Very High | Excellent | Very Large |
 | F# | Medium | High | Good | Medium |
+| Dart | Low | High | Excellent | Large |
+| Swift | Medium | High | Excellent | Large |
 
 ### Recommendations by Use Case
 
 | If You Want... | Choose |
 |----------------|--------|
 | **Best overall** | Go or Rust |
-| **Fastest development** | Python, TypeScript, or Kotlin |
+| **Fastest development** | Python, TypeScript, Dart, or Kotlin |
 | **Best type safety** | Rust, OCaml, or F# |
 | **Best CLI output** | Python (rich) or C# (Spectre.Console) |
 | **Smallest binary** | C or Zig |
 | **Best HTTP server** | Elixir or Rust |
-| **Most familiar to web devs** | TypeScript |
+| **Most familiar to web devs** | TypeScript or Dart |
 | **JVM with modern syntax** | Kotlin or Java 21+ |
 | **JVM with functional paradigm** | Clojure or F# |
 | **Ruby-like experience** | Crystal |
 | **Educational C experience** | C or Zig |
 | **Functional programming** | OCaml, Elixir, F#, or Clojure |
 | **.NET ecosystem** | C# or F# |
+| **Apple ecosystem** | Swift |
+| **Flutter developers** | Dart |
 
 ---
 
@@ -3175,15 +3528,17 @@ Additional languages can follow based on contributor interest.
 
 ## Conclusion
 
-All nineteen languages can implement Abraham successfully. The choice depends
+All twenty-one languages can implement Abraham successfully. The choice depends
 on project goals:
 
-- **Productivity**: Go, Python, TypeScript, Ruby, Kotlin, C#
-- **Correctness**: Rust, OCaml, F#
+- **Productivity**: Go, Python, TypeScript, Ruby, Kotlin, C#, Dart
+- **Correctness**: Rust, OCaml, F#, Swift
 - **Performance**: Rust, Zig, C, C++
 - **Education**: C, Zig, OCaml
 - **JVM Ecosystem**: Kotlin, Java, Clojure
 - **.NET Ecosystem**: C#, F#
+- **Apple Ecosystem**: Swift
+- **Mobile Crossover**: Dart, Swift, Kotlin
 
 For a polyglot learning project, diversity is valuable. Each language brings
 unique insights:
@@ -3197,6 +3552,8 @@ unique insights:
 - Kotlin teaches modern JVM development
 - F# teaches functional programming on .NET
 - Clojure teaches data-oriented programming
+- Dart teaches sound null safety and familiar OOP
+- Swift teaches protocol-oriented programming and modern concurrency
 
 The unified test suite ensures all implementations behave identically despite
 their different approaches.
