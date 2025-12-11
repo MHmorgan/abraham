@@ -2336,6 +2336,757 @@ work. The standard library (@std) is comprehensive and high-quality.
 
 ---
 
+## Kotlin/JVM
+
+### Strengths
+
+| Category | Details |
+|----------|---------|
+| **Modern Syntax** | Concise, expressive. Null safety built into type system. Data classes, sealed classes, destructuring. |
+| **Java Interop** | Full access to Java ecosystem. Any Java library works seamlessly. |
+| **CLI Ecosystem** | `clikt` is excellent—Kotlin-idiomatic, multiplatform, subcommands, completions. |
+| **Coroutines** | Structured concurrency for async operations. Elegant and powerful. |
+| **Tooling** | Excellent IDE support (IntelliJ). Gradle integration. Wide adoption. |
+
+### Weaknesses
+
+| Category | Details |
+|----------|---------|
+| **JVM Dependency** | Requires JVM runtime. JAR distribution or GraalVM native-image for standalone. |
+| **Startup Time** | JVM cold start is slower than native binaries. GraalVM helps but adds complexity. |
+| **Binary Size** | JAR files are small but require JVM. Native images are larger (~30-50MB). |
+| **Gradle Complexity** | Build system is powerful but configuration can be verbose. |
+
+### Project Fit Assessment
+
+**Very good fit.** Kotlin provides modern language features with access to the
+mature JVM ecosystem. The `clikt` library is among the best CLI frameworks
+across any language. GraalVM native-image enables single-binary distribution.
+
+**Difficulty: Easy**
+
+### Recommended Stack
+
+```
+CLI:     clikt
+Config:  hoplite
+SQLite:  sqlite-jdbc + Exposed (or raw JDBC)
+HTTP:    ktor-server
+JSON:    kotlinx.serialization
+Logging: kotlin-logging
+Colors:  mordant
+Tables:  mordant
+Build:   gradle
+```
+
+### Library Ecosystem
+
+Kotlin uses Maven Central and Gradle for dependencies. Full access to Java
+libraries plus Kotlin-specific libraries. Multiplatform libraries work on JVM.
+
+#### CLI & Configuration
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `clikt` | CLI framework | Kotlin-idiomatic. Subcommands, completions. Best-in-class. |
+| `picocli` | CLI framework | Java library. Annotation-based. |
+| `kotlinx-cli` | CLI parsing | JetBrains library. Simpler. |
+| `hoplite` | Configuration | Type-safe config. Multiple formats. |
+| `konf` | Configuration | Universal config library. |
+| `dotenv-kotlin` | Environment | Load `.env` files. |
+
+#### Database
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `sqlite-jdbc` | SQLite | Standard JDBC driver. |
+| `exposed` | SQL DSL/ORM | JetBrains library. Type-safe. |
+| `ktorm` | ORM | Kotlin-specific ORM. |
+| `jooq` | SQL DSL | Type-safe SQL generation. |
+| `jasync-sql` | Async SQL | Async PostgreSQL, MySQL. |
+| `r2dbc` | Reactive DB | Reactive database access. |
+| `komapper` | ORM | Kotlin-first ORM. |
+
+#### HTTP & Web
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `ktor-server` | Web framework | JetBrains. Async. Kotlin-native. |
+| `http4k` | Web framework | Functional. Testable. |
+| `javalin` | Web framework | Lightweight. Easy to use. |
+| `spring-boot` | Web framework | Full-featured. Enterprise. |
+| `ktor-client` | HTTP client | Multiplatform client. |
+| `fuel` | HTTP client | Kotlin HTTP client. |
+| `okhttp` | HTTP client | Square's HTTP client. |
+
+#### JSON & Serialization
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `kotlinx.serialization` | Serialization | Multiplatform. Compile-time. |
+| `jackson-module-kotlin` | JSON | Jackson with Kotlin support. |
+| `moshi` | JSON | Square's JSON library. |
+| `gson` | JSON | Google's JSON library. |
+| `klaxon` | JSON | Kotlin JSON parser. |
+
+#### Logging & Output
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `kotlin-logging` | Logging | SLF4J wrapper. Idiomatic. |
+| `logback` | Logging | SLF4J implementation. |
+| `mordant` | Terminal | Colors, tables, markdown. Excellent. |
+| `kotter` | TUI | Interactive terminal UIs. |
+| `clikt` | Progress | Includes progress bars. |
+
+#### Testing
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `kotlin.test` | Testing | Standard library. JUnit integration. |
+| `kotest` | Testing | Kotlin-native testing. Property-based. |
+| `mockk` | Mocking | Kotlin mocking library. |
+| `strikt` | Assertions | Fluent assertions. |
+| `assertk` | Assertions | Fluent assertions. |
+| `testcontainers` | Integration | Docker-based testing. |
+
+#### Coroutines & Concurrency
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `kotlinx.coroutines` | Coroutines | Structured concurrency. |
+| `flow` | Reactive | Kotlin Flow for streams. |
+| `arrow` | Functional | Functional programming. |
+| `arrow-fx` | Effects | Functional effects. |
+
+---
+
+## Kotlin/Native
+
+### Strengths
+
+| Category | Details |
+|----------|---------|
+| **Single Binary** | Compiles to native executable. No JVM required. |
+| **Kotlin Syntax** | Same language as Kotlin/JVM. Familiar to Kotlin developers. |
+| **C Interop** | Direct C library access via `cinterop`. SQLite works directly. |
+| **Multiplatform** | Share code with Kotlin/JVM and other targets. |
+| **Cross-Compilation** | Build for Linux, macOS, Windows from any host. |
+
+### Weaknesses
+
+| Category | Details |
+|----------|---------|
+| **Ecosystem Limitations** | Many Kotlin libraries are JVM-only. Smaller native ecosystem. |
+| **Compilation Time** | Slower than JVM compilation. LLVM-based. |
+| **Performance** | Generally good but some overhead compared to C/Rust. |
+| **HTTP Servers** | Limited options. `ktor-server-cio` works but fewer choices. |
+
+### Project Fit Assessment
+
+**Good fit.** Kotlin/Native provides Kotlin ergonomics with native binary output.
+Library ecosystem is smaller but `clikt`, `kotlinx.serialization`, and SQLite
+via C interop cover Abraham's needs. Good for teams already using Kotlin.
+
+**Difficulty: Medium**
+
+### Recommended Stack
+
+```
+CLI:     clikt (multiplatform)
+Config:  kotlinx.serialization (JSON config)
+SQLite:  C interop with sqlite3
+HTTP:    ktor-server-cio
+JSON:    kotlinx.serialization
+Logging: Custom (println to stderr)
+Build:   gradle with kotlin-multiplatform
+```
+
+### Library Ecosystem
+
+Kotlin/Native uses multiplatform libraries. Not all Kotlin libraries support
+Native, but the core ones do. C libraries are accessible via `cinterop`.
+
+#### Multiplatform Libraries
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `clikt` | CLI framework | Full multiplatform support. |
+| `kotlinx.serialization` | Serialization | JSON, Protobuf, CBOR. |
+| `kotlinx.coroutines` | Coroutines | Native support. |
+| `kotlinx.datetime` | Date/time | Multiplatform date/time. |
+| `ktor-client` | HTTP client | Native HTTP client. |
+| `ktor-server-cio` | HTTP server | Pure Kotlin server. |
+| `kermit` | Logging | Multiplatform logging. |
+| `okio` | I/O | Multiplatform I/O. |
+| `sqldelight` | SQLite | Multiplatform SQLite. |
+
+#### C Interop
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `sqlite3` | SQLite | Via cinterop definition. |
+| `libcurl` | HTTP | C library interop. |
+| `openssl` | Crypto | C library interop. |
+| `ncurses` | TUI | C library interop. |
+
+---
+
+## Java
+
+### Strengths
+
+| Category | Details |
+|----------|---------|
+| **Modern Java** | Records, sealed types, pattern matching (21+). Virtual threads (21+). |
+| **Ecosystem** | Largest library ecosystem. Mature, battle-tested. |
+| **Tooling** | Excellent IDE support. Gradle and Maven are robust. |
+| **GraalVM** | Native-image for single-binary distribution. Faster startup. |
+| **Virtual Threads** | Lightweight concurrency without async/await complexity. |
+
+### Weaknesses
+
+| Category | Details |
+|----------|---------|
+| **Verbosity** | More verbose than Kotlin despite improvements. |
+| **JVM Dependency** | Requires JVM or GraalVM native-image. |
+| **Startup Time** | JVM cold start is slow. GraalVM helps. |
+| **Pattern Matching** | Improving but not as complete as Rust or OCaml. |
+
+### Project Fit Assessment
+
+**Very good fit.** Modern Java (21+) is pleasant to use. `picocli` is an
+excellent CLI library. The massive ecosystem ensures libraries for every need.
+GraalVM native-image enables single-binary distribution.
+
+**Difficulty: Easy**
+
+### Recommended Stack
+
+```
+CLI:     picocli
+Config:  typesafe-config (or owner)
+SQLite:  sqlite-jdbc
+HTTP:    javalin (or Helidon Nima for virtual threads)
+JSON:    jackson (or gson)
+Logging: slf4j + logback
+Colors:  jansi
+Tables:  ascii-table (or picocli tables)
+Build:   gradle (or maven)
+```
+
+### Library Ecosystem
+
+Java has the largest library ecosystem. Maven Central hosts hundreds of
+thousands of packages. Most are well-documented and maintained.
+
+#### CLI & Configuration
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `picocli` | CLI framework | Annotation-based. Completions. Best-in-class. |
+| `jcommander` | CLI framework | Simpler alternative. |
+| `args4j` | CLI framework | Annotation-based. |
+| `airline` | CLI framework | Git-style CLIs. |
+| `typesafe-config` | Configuration | HOCON format. Popular. |
+| `owner` | Configuration | Annotation-based config. |
+| `dotenv-java` | Environment | Load `.env` files. |
+| `microprofile-config` | Configuration | Standard config API. |
+
+#### Database
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `sqlite-jdbc` | SQLite | SQLite JDBC driver. |
+| `jooq` | SQL DSL | Type-safe SQL. Code generation. |
+| `jdbi` | SQL | Fluent SQL API. |
+| `hibernate` | ORM | Full-featured ORM. |
+| `eclipselink` | ORM | JPA implementation. |
+| `hikaricp` | Connection pool | Fast connection pooling. |
+| `flyway` | Migrations | Database migrations. |
+| `liquibase` | Migrations | Database migrations. |
+
+#### HTTP & Web
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `javalin` | Web framework | Lightweight. Modern. |
+| `helidon-nima` | Web framework | Virtual threads. Fast. |
+| `spring-boot` | Web framework | Full-featured. Enterprise. |
+| `quarkus` | Web framework | Cloud-native. GraalVM-friendly. |
+| `micronaut` | Web framework | Compile-time DI. Fast startup. |
+| `spark-java` | Web framework | Micro framework. |
+| `jersey` | REST | JAX-RS implementation. |
+| `java.net.http` | HTTP client | Standard library (11+). |
+| `okhttp` | HTTP client | Square's client. |
+| `apache-httpclient` | HTTP client | Apache client. |
+
+#### JSON & Serialization
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `jackson` | JSON | Industry standard. Full-featured. |
+| `gson` | JSON | Google's library. Simple. |
+| `json-b` | JSON | Jakarta JSON Binding. |
+| `moshi` | JSON | Modern, Kotlin-friendly. |
+| `protobuf-java` | Protocol Buffers | Google's protobuf. |
+| `avro` | Binary | Apache Avro serialization. |
+
+#### Logging & Output
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `slf4j` | Logging facade | Standard facade. |
+| `logback` | Logging | SLF4J implementation. |
+| `log4j2` | Logging | Apache logging. |
+| `jansi` | Colors | ANSI colors for terminals. |
+| `jline` | Terminal | Line editing, completion. |
+| `ascii-table` | Tables | ASCII table formatting. |
+| `lanterna` | TUI | Terminal UI library. |
+| `picocli` | Output | Includes styled output. |
+
+#### Testing
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `junit5` | Testing | The Java test framework. |
+| `testng` | Testing | Alternative framework. |
+| `assertj` | Assertions | Fluent assertions. |
+| `hamcrest` | Matchers | Matcher library. |
+| `mockito` | Mocking | Most popular mocking. |
+| `easymock` | Mocking | Alternative mocking. |
+| `wiremock` | HTTP mocking | Mock HTTP servers. |
+| `testcontainers` | Integration | Docker-based testing. |
+| `archunit` | Architecture | Architecture testing. |
+
+#### Concurrency
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `java.util.concurrent` | Concurrency | Standard library. |
+| `virtual threads` | Lightweight threads | Java 21+. Scalable. |
+| `structured concurrency` | Scoped values | Java 21+ preview. |
+| `completable-future` | Async | Standard async. |
+| `rxjava` | Reactive | Reactive extensions. |
+| `reactor` | Reactive | Project Reactor. |
+
+---
+
+## Clojure
+
+### Strengths
+
+| Category | Details |
+|----------|---------|
+| **Functional** | Immutable data structures by default. Pure functions emphasized. |
+| **REPL-Driven** | Interactive development. Rapid iteration. |
+| **Macros** | Powerful metaprogramming. DSLs are natural. |
+| **JVM Ecosystem** | Full access to Java libraries. |
+| **Data-Oriented** | Data as code. Spec for validation. |
+
+### Weaknesses
+
+| Category | Details |
+|----------|---------|
+| **Startup Time** | JVM + Clojure initialization is slow. Use Babashka for scripts. |
+| **Syntax** | Lisp syntax is unfamiliar to most developers. |
+| **Error Messages** | Historically poor. Improving with spec and better tooling. |
+| **Static Analysis** | Dynamic typing limits tooling. Spec helps but is optional. |
+
+### Project Fit Assessment
+
+**Good fit for Clojure enthusiasts.** The functional paradigm fits Abraham's
+domain well. REPL-driven development enables rapid prototyping. Startup time
+is the main concern for CLI tools—Babashka or GraalVM can help.
+
+**Difficulty: Medium**
+
+### Recommended Stack
+
+```
+CLI:     cli-matic (or tools.cli)
+Config:  aero (EDN-based)
+SQLite:  next.jdbc
+HTTP:    ring + reitit
+JSON:    cheshire
+Logging: timbre
+Build:   deps.edn + tools.build
+```
+
+### Library Ecosystem
+
+Clojure uses Clojars and Maven Central. The community emphasizes simplicity
+and composability. Many libraries are small and focused.
+
+#### CLI & Configuration
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `cli-matic` | CLI framework | Declarative. Spec-based. |
+| `tools.cli` | CLI parsing | Clojure contrib. Simple. |
+| `aero` | Configuration | EDN-based. Profiles. |
+| `environ` | Environment | Environment variables. |
+| `cprop` | Configuration | Config from multiple sources. |
+| `confetti` | Configuration | Configuration library. |
+| `omniconf` | Configuration | Comprehensive config. |
+
+#### Database
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `next.jdbc` | JDBC | Modern JDBC wrapper. |
+| `honeysql` | SQL DSL | SQL as data structures. |
+| `hugsql` | SQL | SQL in separate files. |
+| `yesql` | SQL | SQL templates. |
+| `jdbc` | JDBC | Clojure contrib. Legacy. |
+| `datomic` | Database | Immutable database. |
+| `xtdb` | Database | Temporal database. |
+| `carmine` | Redis | Redis client. |
+| `monger` | MongoDB | MongoDB client. |
+
+#### HTTP & Web
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `ring` | HTTP abstraction | Foundation for Clojure web. |
+| `reitit` | Router | Data-driven routing. Fast. |
+| `compojure` | Router | Classic routing DSL. |
+| `http-kit` | HTTP server | Fast, lightweight. |
+| `jetty` | HTTP server | Via ring adapter. |
+| `aleph` | HTTP | Async. Netty-based. |
+| `pedestal` | Web framework | Full-featured. Interceptors. |
+| `luminus` | Web framework | Batteries included. |
+| `clj-http` | HTTP client | Apache HTTP wrapper. |
+| `hato` | HTTP client | Java 11 client wrapper. |
+
+#### JSON & Serialization
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `cheshire` | JSON | Fast JSON. Most popular. |
+| `data.json` | JSON | Clojure contrib. |
+| `jsonista` | JSON | Fast. Jackson-based. |
+| `transit` | Serialization | Rich data preservation. |
+| `nippy` | Binary | Fast binary serialization. |
+| `clojure.edn` | EDN | Built-in EDN. |
+
+#### Logging & Output
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `timbre` | Logging | Pure Clojure. Flexible. |
+| `tools.logging` | Logging | Clojure contrib. SLF4J. |
+| `io.aviso/pretty` | Output | Pretty exceptions, tables. |
+| `table` | Tables | ASCII tables. |
+| `puget` | Pretty printing | Colored pretty printing. |
+| `clansi` | Colors | ANSI colors. |
+
+#### Testing
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `clojure.test` | Testing | Built-in test framework. |
+| `kaocha` | Test runner | Feature-rich runner. |
+| `expectations` | Testing | BDD-style. |
+| `midje` | Testing | Mocking, readable tests. |
+| `test.check` | Property testing | Generative testing. |
+| `spec` | Validation | Spec for validation and testing. |
+| `matcher-combinators` | Assertions | Flexible matching. |
+
+#### REPL & Development
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `cider` | IDE | Emacs integration. |
+| `calva` | IDE | VS Code integration. |
+| `nrepl` | REPL | Networked REPL. |
+| `rebel-readline` | REPL | Enhanced REPL. |
+| `portal` | Debugging | Data viewer. |
+| `flow-storm` | Debugging | Debugger and tracer. |
+| `clj-kondo` | Linting | Static analysis. |
+
+#### Concurrency
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `core.async` | Async | CSP-style channels. |
+| `manifold` | Async | Deferred and streams. |
+| `promesa` | Promises | Promise library. |
+| `claypoole` | Parallelism | Thread pools. |
+| `clojure.core` | Atoms, Refs | Built-in concurrency primitives. |
+
+---
+
+## C#
+
+### Strengths
+
+| Category | Details |
+|----------|---------|
+| **Modern Language** | Records, pattern matching, nullable references. Constantly improving. |
+| **Native AOT** | Single binary compilation (.NET 8+). No runtime required. |
+| **Ecosystem** | NuGet has extensive libraries. Enterprise-proven. |
+| **Tooling** | Excellent IDE support (Rider, VS Code, Visual Studio). |
+| **Cross-Platform** | .NET 8+ runs on Windows, Linux, macOS. |
+
+### Weaknesses
+
+| Category | Details |
+|----------|---------|
+| **Verbosity** | More verbose than F# or Kotlin. Improving with records. |
+| **AOT Limitations** | Some reflection features don't work with AOT. |
+| **Historical Baggage** | Some legacy APIs and patterns persist. |
+| **Linux Perception** | Historically Windows-focused. Now truly cross-platform. |
+
+### Project Fit Assessment
+
+**Very good fit.** Modern C# is pleasant to use. `Spectre.Console` provides
+exceptional terminal output. Native AOT enables single-binary distribution.
+The ecosystem is mature and well-documented.
+
+**Difficulty: Easy**
+
+### Recommended Stack
+
+```
+CLI:     System.CommandLine (or Spectre.Console.Cli)
+Config:  Microsoft.Extensions.Configuration
+SQLite:  Microsoft.Data.Sqlite + Dapper
+HTTP:    ASP.NET Core Minimal APIs
+JSON:    System.Text.Json
+Logging: Microsoft.Extensions.Logging
+Colors:  Spectre.Console
+Tables:  Spectre.Console
+Build:   dotnet CLI
+```
+
+### Library Ecosystem
+
+C# uses NuGet for packages. The ecosystem is extensive with strong Microsoft
+backing. Most libraries are well-documented and actively maintained.
+
+#### CLI & Configuration
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `System.CommandLine` | CLI framework | Microsoft. Modern. Preview. |
+| `Spectre.Console.Cli` | CLI framework | Part of Spectre.Console. |
+| `CommandLineParser` | CLI parsing | Popular, stable. |
+| `CliFx` | CLI framework | Convention-based. |
+| `McMaster.Extensions.CommandLineUtils` | CLI framework | Simple, declarative. |
+| `Microsoft.Extensions.Configuration` | Configuration | Official. Multi-source. |
+| `DotNetEnv` | Environment | Load `.env` files. |
+
+#### Database
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Microsoft.Data.Sqlite` | SQLite | Official SQLite provider. |
+| `Dapper` | Micro-ORM | Fast, simple SQL. |
+| `Entity Framework Core` | ORM | Full-featured ORM. |
+| `Npgsql` | PostgreSQL | PostgreSQL provider. |
+| `MySqlConnector` | MySQL | MySQL provider. |
+| `StackExchange.Redis` | Redis | Redis client. |
+| `MongoDB.Driver` | MongoDB | Official driver. |
+| `FluentMigrator` | Migrations | Database migrations. |
+
+#### HTTP & Web
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `ASP.NET Core` | Web framework | Full-featured. Official. |
+| `Minimal APIs` | Web framework | Lightweight ASP.NET Core. |
+| `Carter` | Web framework | Minimal API extensions. |
+| `Giraffe` | Web framework | F# on ASP.NET Core (works from C#). |
+| `HttpClient` | HTTP client | Standard library. |
+| `Refit` | HTTP client | Type-safe REST client. |
+| `RestSharp` | HTTP client | Simple REST client. |
+| `Flurl` | HTTP client | Fluent URL building + HTTP. |
+
+#### JSON & Serialization
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `System.Text.Json` | JSON | Built-in. Fast. |
+| `Newtonsoft.Json` | JSON | Feature-rich. Legacy standard. |
+| `MessagePack-CSharp` | Binary | Fast binary serialization. |
+| `protobuf-net` | Protocol Buffers | Protobuf implementation. |
+| `YamlDotNet` | YAML | YAML parser. |
+| `Tomlyn` | TOML | TOML parser. |
+
+#### Logging & Output
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Microsoft.Extensions.Logging` | Logging | Official. Pluggable. |
+| `Serilog` | Logging | Structured logging. Popular. |
+| `NLog` | Logging | Flexible logging. |
+| `Spectre.Console` | Terminal | Colors, tables, trees. Best-in-class. |
+| `Terminal.Gui` | TUI | Terminal UI framework. |
+| `ShellProgressBar` | Progress | Progress bars. |
+| `Colorful.Console` | Colors | Colored console output. |
+
+#### Testing
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `xUnit` | Testing | Modern test framework. |
+| `NUnit` | Testing | Classic framework. |
+| `MSTest` | Testing | Microsoft's framework. |
+| `FluentAssertions` | Assertions | Fluent assertions. |
+| `Shouldly` | Assertions | Simple assertions. |
+| `Moq` | Mocking | Most popular mocking. |
+| `NSubstitute` | Mocking | Alternative mocking. |
+| `WireMock.Net` | HTTP mocking | Mock HTTP servers. |
+| `Bogus` | Fake data | Fake data generation. |
+| `AutoFixture` | Fixtures | Auto-generate test data. |
+| `Testcontainers` | Integration | Docker-based testing. |
+| `Verify` | Snapshots | Snapshot testing. |
+| `Stryker` | Mutation testing | Mutation testing. |
+
+#### Async & Concurrency
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Task` | Async | Built-in async/await. |
+| `IAsyncEnumerable` | Async streams | Async iteration. |
+| `System.Threading.Channels` | Channels | Producer-consumer. |
+| `Dataflow` | Pipelines | Data processing pipelines. |
+| `Polly` | Resilience | Retry, circuit breaker. |
+| `Hangfire` | Background jobs | Job scheduling. |
+| `Quartz.NET` | Scheduling | Cron-like scheduling. |
+
+---
+
+## F#
+
+### Strengths
+
+| Category | Details |
+|----------|---------|
+| **Functional-First** | Immutable by default. Composition over inheritance. |
+| **Type System** | Algebraic data types, discriminated unions, pattern matching. |
+| **Conciseness** | Significantly less code than C# for same functionality. |
+| **.NET Ecosystem** | Full access to NuGet and .NET libraries. |
+| **Correctness** | Strong types catch errors at compile time. |
+
+### Weaknesses
+
+| Category | Details |
+|----------|---------|
+| **Smaller Community** | Fewer F#-specific libraries than C#. |
+| **Learning Curve** | Functional paradigm requires adjustment for OOP developers. |
+| **AOT Limitations** | Native AOT works but some reflection features limited. |
+| **File Ordering** | Files must be ordered by dependency in .fsproj. |
+
+### Project Fit Assessment
+
+**Good fit.** F# excels at domain modeling. Discriminated unions naturally
+express Status and Priority. Pattern matching ensures exhaustive handling.
+Access to .NET ecosystem means libraries are available for all needs.
+
+**Difficulty: Medium**
+
+### Recommended Stack
+
+```
+CLI:     Argu
+Config:  FsConfig (or Microsoft.Extensions.Configuration)
+SQLite:  Microsoft.Data.Sqlite + Dapper.FSharp
+HTTP:    Giraffe (or Falco)
+JSON:    Thoth.Json (or FSharp.SystemTextJson)
+Logging: Serilog
+Output:  Spectre.Console (works from F#)
+Build:   dotnet CLI
+```
+
+### Library Ecosystem
+
+F# uses NuGet. Many C# libraries work from F#, plus F#-specific libraries
+that provide idiomatic APIs. The community emphasizes type safety and correctness.
+
+#### CLI & Configuration
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Argu` | CLI framework | F#-idiomatic. Discriminated unions. |
+| `System.CommandLine` | CLI framework | Works from F#. |
+| `FsConfig` | Configuration | Type-safe config. |
+| `Microsoft.Extensions.Configuration` | Configuration | Works from F#. |
+| `Legivel` | YAML | YAML parser. |
+
+#### Database
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Microsoft.Data.Sqlite` | SQLite | Standard SQLite provider. |
+| `Dapper.FSharp` | SQL | F#-friendly Dapper wrapper. |
+| `Donald` | SQL | F# SQL toolkit. |
+| `Npgsql.FSharp` | PostgreSQL | F# PostgreSQL wrapper. |
+| `SqlHydra` | Type providers | Generated SQL types. |
+| `FSharp.Data.SqlClient` | Type provider | Compile-time SQL validation. |
+
+#### HTTP & Web
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Giraffe` | Web framework | Functional ASP.NET Core. |
+| `Falco` | Web framework | Minimal, fast. |
+| `Saturn` | Web framework | Rails-like on Giraffe. |
+| `Suave` | Web framework | Lightweight, functional. |
+| `FSharp.Data.Http` | HTTP client | F# HTTP utilities. |
+| `Oryx` | HTTP client | F# HTTP client. |
+
+#### JSON & Serialization
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Thoth.Json.Net` | JSON | Type-safe encoders/decoders. |
+| `FSharp.SystemTextJson` | JSON | System.Text.Json support. |
+| `Chiron` | JSON | Functional JSON. |
+| `FsPickler` | Serialization | Binary serialization. |
+
+#### Logging & Output
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Serilog` | Logging | Works well from F#. |
+| `Microsoft.Extensions.Logging` | Logging | Works from F#. |
+| `Spectre.Console` | Terminal | Works from F#. Colors, tables. |
+| `Argu` | Help | Generates CLI help text. |
+
+#### Testing
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `Expecto` | Testing | F#-native testing. |
+| `Unquote` | Assertions | Quotation-based assertions. |
+| `FsUnit` | Assertions | F#-friendly assertions. |
+| `FsCheck` | Property testing | QuickCheck for F#. |
+| `Hedgehog` | Property testing | Modern property testing. |
+| `xUnit` | Testing | Works from F#. |
+| `Foq` | Mocking | F# mocking. |
+
+#### Functional Programming
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `FSharpPlus` | Functional | Extended FP utilities. |
+| `FSharpx` | Utilities | Additional F# utilities. |
+| `Hopac` | Concurrency | High-performance concurrency. |
+| `FSharp.Control.AsyncSeq` | Async | Async sequences. |
+| `Ply` | Async | Task support. |
+
+#### Parsing & DSLs
+
+| Library | Purpose | Notes |
+|---------|---------|-------|
+| `FParsec` | Parser combinators | Powerful parsing library. |
+| `FSharp.Data` | Type providers | CSV, JSON, XML type providers. |
+| `FSharp.Formatting` | Documentation | Literate programming. |
+
+---
+
 ## Comparison Matrix
 
 ### Core Requirements
@@ -2355,6 +3106,12 @@ work. The standard library (@std) is comprehensive and high-quality.
 | OCaml | cmdliner | sqlite3-ocaml | dream | Custom | Yes |
 | Elixir | optimus | exqlite | plug | io_ansi | No (escript) |
 | TypeScript | cliffy | @db/sqlite | hono | @std/fmt | Yes (deno compile) |
+| Kotlin/JVM | clikt | sqlite-jdbc | ktor | mordant | No (JAR/GraalVM) |
+| Kotlin/Native | clikt | C interop | ktor-cio | Custom | Yes |
+| Java | picocli | sqlite-jdbc | javalin | jansi | No (JAR/GraalVM) |
+| Clojure | cli-matic | next.jdbc | reitit | clansi | No (JAR/GraalVM) |
+| C# | System.CommandLine | Microsoft.Data.Sqlite | Minimal APIs | Spectre.Console | Yes (AOT) |
+| F# | Argu | Microsoft.Data.Sqlite | Giraffe | Spectre.Console | Yes (AOT) |
 
 ### Developer Experience
 
@@ -2373,21 +3130,30 @@ work. The standard library (@std) is comprehensive and high-quality.
 | OCaml | High | Medium | Good | Small |
 | Elixir | Medium | High | Good | Medium |
 | TypeScript | Low | High | Excellent | Very Large |
+| Kotlin/JVM | Low | Very High | Excellent | Large |
+| Kotlin/Native | Medium | Medium | Excellent | Medium |
+| Java | Low | Very High | Excellent | Very Large |
+| Clojure | Medium | High | Good | Medium |
+| C# | Low | Very High | Excellent | Very Large |
+| F# | Medium | High | Good | Medium |
 
 ### Recommendations by Use Case
 
 | If You Want... | Choose |
 |----------------|--------|
 | **Best overall** | Go or Rust |
-| **Fastest development** | Python or TypeScript |
-| **Best type safety** | Rust or OCaml |
-| **Best CLI output** | Python (rich) |
+| **Fastest development** | Python, TypeScript, or Kotlin |
+| **Best type safety** | Rust, OCaml, or F# |
+| **Best CLI output** | Python (rich) or C# (Spectre.Console) |
 | **Smallest binary** | C or Zig |
 | **Best HTTP server** | Elixir or Rust |
 | **Most familiar to web devs** | TypeScript |
+| **JVM with modern syntax** | Kotlin or Java 21+ |
+| **JVM with functional paradigm** | Clojure or F# |
 | **Ruby-like experience** | Crystal |
 | **Educational C experience** | C or Zig |
-| **Functional programming** | OCaml or Elixir |
+| **Functional programming** | OCaml, Elixir, F#, or Clojure |
+| **.NET ecosystem** | C# or F# |
 
 ---
 
@@ -2399,7 +3165,9 @@ For a polyglot project, consider this implementation order:
 2. **Rust** - Strong types help refine the specification
 3. **Python** - Reference implementation with best output formatting
 4. **TypeScript** - Familiar to web developers, tests Deno ecosystem
-5. **C** - Educational, tests the specification with minimal abstractions
+5. **C#** - Modern .NET with excellent terminal output (Spectre.Console)
+6. **Kotlin** - Modern JVM language, tests multiplatform potential
+7. **C** - Educational, tests the specification with minimal abstractions
 
 Additional languages can follow based on contributor interest.
 
@@ -2407,13 +3175,15 @@ Additional languages can follow based on contributor interest.
 
 ## Conclusion
 
-All thirteen languages can implement Abraham successfully. The choice depends
+All nineteen languages can implement Abraham successfully. The choice depends
 on project goals:
 
-- **Productivity**: Go, Python, TypeScript, Ruby
-- **Correctness**: Rust, OCaml
+- **Productivity**: Go, Python, TypeScript, Ruby, Kotlin, C#
+- **Correctness**: Rust, OCaml, F#
 - **Performance**: Rust, Zig, C, C++
 - **Education**: C, Zig, OCaml
+- **JVM Ecosystem**: Kotlin, Java, Clojure
+- **.NET Ecosystem**: C#, F#
 
 For a polyglot learning project, diversity is valuable. Each language brings
 unique insights:
@@ -2424,6 +3194,9 @@ unique insights:
 - C teaches low-level fundamentals
 - OCaml teaches algebraic thinking
 - Elixir teaches fault-tolerant concurrent systems
+- Kotlin teaches modern JVM development
+- F# teaches functional programming on .NET
+- Clojure teaches data-oriented programming
 
 The unified test suite ensures all implementations behave identically despite
 their different approaches.
