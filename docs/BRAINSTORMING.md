@@ -2533,6 +2533,469 @@ kotlin {
 
 ---
 
+### Java 25
+
+**Why Java 25 fits well:**
+- Modern Java with records, sealed types, pattern matching
+- Virtual threads for lightweight concurrency
+- Mature ecosystem with battle-tested libraries
+- GraalVM native-image for single binary
+- Strong IDE and tooling support
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `picocli` | Annotation-based, completions |
+| CLI (alt) | `jcommander` | Simpler alternative |
+| Config | `typesafe-config` | HOCON format, env support |
+| SQLite | `sqlite-jdbc` | Standard JDBC driver |
+| SQLite (ORM) | `jooq` | Type-safe SQL DSL |
+| HTTP | `javalin` | Lightweight, modern |
+| HTTP (alt) | `helidon-nima` | Virtual threads native |
+| JSON | `jackson` | Industry standard |
+| JSON (alt) | `gson` | Simpler alternative |
+| Logging | `slf4j` + `logback` | Standard logging facade |
+| Colors | `jansi` | ANSI colors for terminals |
+| Tables | `ascii-table` | Simple table formatting |
+| Build | `gradle` or `maven` | Standard build systems |
+
+**Project Structure:**
+
+```
+java/
+├── build.gradle.kts
+├── settings.gradle.kts
+└── src/
+    ├── main/
+    │   └── java/
+    │       └── abraham/
+    │           ├── Main.java           # Entry point
+    │           ├── cli/
+    │           │   ├── Cli.java        # Picocli application
+    │           │   ├── InitCmd.java
+    │           │   ├── ConfigCmd.java
+    │           │   ├── ProjectCmd.java
+    │           │   └── TaskCmd.java
+    │           ├── config/
+    │           │   └── Config.java     # Record-based config
+    │           ├── db/
+    │           │   ├── Database.java   # Connection management
+    │           │   ├── Migrate.java
+    │           │   ├── ProjectRepo.java
+    │           │   └── TaskRepo.java
+    │           ├── model/
+    │           │   ├── Project.java    # Record
+    │           │   ├── Task.java       # Record with children
+    │           │   ├── Status.java     # Sealed interface
+    │           │   └── Priority.java   # Enum
+    │           ├── format/
+    │           │   ├── Formatter.java  # Sealed interface (Strategy)
+    │           │   ├── TableFmt.java
+    │           │   ├── JsonFmt.java
+    │           │   └── TreeFmt.java
+    │           └── server/
+    │               ├── Server.java     # Javalin application
+    │               └── Routes.java
+    └── test/
+        └── java/
+            └── abraham/
+                └── ...
+```
+
+**Idiomatic Patterns:**
+- Records for immutable domain models
+- Sealed interfaces for Strategy pattern with exhaustive switch
+- Pattern matching with `switch` expressions (Java 21+)
+- Virtual threads for concurrent HTTP server
+- `Optional<T>` for nullable fields
+- Stream API for collection transformations
+- Try-with-resources for database connections
+
+**Java 25-Specific Extensions:**
+- GraalVM native-image for single binary distribution
+- Virtual threads (`Thread.ofVirtual()`) for scalable server
+- Structured concurrency for task groups (preview)
+- String templates for SQL queries (preview)
+- Record patterns for destructuring
+
+**GraalVM native-image configuration:**
+
+```bash
+native-image \
+    --no-fallback \
+    -H:+ReportExceptionStackTraces \
+    --initialize-at-build-time \
+    -jar build/libs/abraham.jar \
+    abraham
+```
+
+---
+
+### Clojure
+
+**Why Clojure fits well:**
+- Functional programming with immutable data
+- REPL-driven development for rapid iteration
+- Lisp macros for DSL creation
+- JVM ecosystem access
+- Excellent concurrency primitives
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `cli-matic` | Declarative, spec-based |
+| CLI (alt) | `tools.cli` | Clojure contrib, minimal |
+| Config | `aero` | EDN-based, profiles |
+| SQLite | `next.jdbc` | Modern JDBC wrapper |
+| SQLite (alt) | `honeysql` | SQL as data structures |
+| HTTP | `ring` + `reitit` | Ring middleware + router |
+| HTTP (alt) | `http-kit` | Lightweight server |
+| JSON | `cheshire` | Fast JSON encoding |
+| Logging | `timbre` | Pure Clojure logging |
+| Colors | Custom | ANSI escape sequences |
+| Tables | `doric` | Table formatting |
+| Build | `deps.edn` + `tools.build` | Official tooling |
+
+**Project Structure:**
+
+```
+clojure/
+├── deps.edn
+├── build.clj                  # tools.build script
+└── src/
+    └── abraham/
+        ├── core.clj           # Entry point, -main
+        ├── cli.clj            # Command definitions
+        ├── cli/
+        │   ├── init.clj
+        │   ├── config.clj
+        │   ├── project.clj
+        │   └── task.clj
+        ├── config.clj         # Config loading
+        ├── db/
+        │   ├── core.clj       # Connection, pool
+        │   ├── migrate.clj
+        │   ├── project.clj    # Project queries
+        │   └── task.clj       # Task queries
+        ├── model/
+        │   ├── project.clj    # Specs, constructors
+        │   └── task.clj       # With children
+        ├── format/
+        │   ├── core.clj       # Multimethod dispatch
+        │   ├── table.clj
+        │   ├── json.clj
+        │   └── tree.clj
+        └── server/
+            ├── core.clj       # Ring handler
+            └── routes.clj     # Reitit routes
+```
+
+**Idiomatic Patterns:**
+- Maps for domain models (with spec validation)
+- Multimethods for Strategy pattern (dispatch on :format)
+- Persistent data structures (immutable by default)
+- Threading macros (`->`, `->>`) for transformations
+- Atoms for mutable state (config, connections)
+- Protocols for polymorphism when performance matters
+
+**Clojure-Specific Extensions:**
+- REPL for interactive development (`abraham.repl`)
+- EDN format for config and export
+- Spec for validation and generative testing
+- Hot code reloading in development
+- GraalVM native-image via `clj-easy/graalvm-clojure`
+- Babashka for faster startup (subset of Clojure)
+
+**deps.edn example:**
+
+```clojure
+{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        cli-matic/cli-matic {:mvn/version "0.5.4"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.3.909"}
+        org.xerial/sqlite-jdbc {:mvn/version "3.45.1.0"}
+        metosin/reitit {:mvn/version "0.7.0"}
+        ring/ring-core {:mvn/version "1.12.0"}
+        cheshire/cheshire {:mvn/version "5.12.0"}
+        com.taoensso/timbre {:mvn/version "6.5.0"}}
+ :aliases
+ {:run {:main-opts ["-m" "abraham.core"]}
+  :build {:deps {io.github.clojure/tools.build {:mvn/version "0.9.6"}}
+          :ns-default build}
+  :native {:deps {org.clj-easy/graalvm-clojure {:mvn/version "1.0.0"}}}}}
+```
+
+---
+
+### C#
+
+**Why C# fits well:**
+- Modern language with records, pattern matching
+- Excellent tooling and IDE support
+- .NET ecosystem with mature libraries
+- Native AOT compilation for single binary
+- Cross-platform (.NET 8+)
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `System.CommandLine` | Official, modern |
+| CLI (alt) | `Spectre.Console.Cli` | Part of Spectre.Console |
+| Config | `Microsoft.Extensions.Configuration` | Official, multi-source |
+| SQLite | `Microsoft.Data.Sqlite` | Official SQLite provider |
+| SQLite (ORM) | `Dapper` | Micro-ORM, fast |
+| HTTP | `ASP.NET Core Minimal APIs` | Built-in, modern |
+| HTTP (alt) | `Carter` | Minimal API extensions |
+| JSON | `System.Text.Json` | Built-in, fast |
+| Logging | `Microsoft.Extensions.Logging` | Official, pluggable |
+| Colors | `Spectre.Console` | Rich terminal output |
+| Tables | `Spectre.Console` | Includes table formatting |
+| Build | `dotnet` CLI | Standard toolchain |
+
+**Project Structure:**
+
+```
+csharp/
+├── Abraham.sln
+├── src/
+│   └── Abraham/
+│       ├── Abraham.csproj
+│       ├── Program.cs            # Entry point
+│       ├── Cli/
+│       │   ├── RootCommand.cs
+│       │   ├── InitCommand.cs
+│       │   ├── ConfigCommand.cs
+│       │   ├── ProjectCommand.cs
+│       │   └── TaskCommand.cs
+│       ├── Config/
+│       │   └── AppConfig.cs      # Configuration record
+│       ├── Db/
+│       │   ├── Database.cs       # Connection management
+│       │   ├── Migrations.cs
+│       │   ├── ProjectRepo.cs
+│       │   └── TaskRepo.cs
+│       ├── Model/
+│       │   ├── Project.cs        # Record
+│       │   ├── Task.cs           # Record with children
+│       │   ├── Status.cs         # Enum
+│       │   └── Priority.cs       # Enum
+│       ├── Format/
+│       │   ├── IFormatter.cs     # Interface (Strategy)
+│       │   ├── TableFormatter.cs
+│       │   ├── JsonFormatter.cs
+│       │   └── TreeFormatter.cs
+│       └── Server/
+│           ├── Server.cs         # Minimal API setup
+│           └── Endpoints.cs      # Route handlers
+└── tests/
+    └── Abraham.Tests/
+        ├── Abraham.Tests.csproj
+        └── ...
+```
+
+**Idiomatic Patterns:**
+- Records for immutable domain models
+- Interfaces for Strategy pattern
+- Pattern matching with `switch` expressions
+- `async/await` for database and HTTP operations
+- LINQ for collection transformations
+- Nullable reference types (`T?`) for optional fields
+- Dependency injection for testability
+
+**C#-Specific Extensions:**
+- Native AOT for single binary (`PublishAot=true`)
+- Source generators for JSON serialization
+- Minimal APIs for concise HTTP endpoints
+- `IAsyncEnumerable<T>` for streaming results
+- `Span<T>` for performance-critical paths
+
+**Abraham.csproj example:**
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="Spectre.Console" Version="0.49.1" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.28" />
+  </ItemGroup>
+</Project>
+```
+
+---
+
+### F#
+
+**Why F# fits well:**
+- Functional-first with immutable defaults
+- Algebraic data types for domain modeling
+- Pattern matching and exhaustive checks
+- Type inference reduces boilerplate
+- .NET ecosystem access
+
+**Recommended Libraries:**
+
+| Purpose | Library | Notes |
+|---------|---------|-------|
+| CLI | `Argu` | F#-idiomatic, discriminated unions |
+| CLI (alt) | `System.CommandLine` | Works but less idiomatic |
+| Config | `FsConfig` | Type-safe, environment-aware |
+| SQLite | `Microsoft.Data.Sqlite` | Standard SQLite provider |
+| SQLite (alt) | `Dapper.FSharp` | F#-friendly Dapper wrapper |
+| HTTP | `Giraffe` | Functional ASP.NET Core |
+| HTTP (alt) | `Falco` | Minimal, fast |
+| JSON | `Thoth.Json` | Type-safe JSON, decoders |
+| JSON (alt) | `FSharp.SystemTextJson` | System.Text.Json F# support |
+| Logging | `Serilog` | Structured logging |
+| Colors | `Spectre.Console` | Works from F# |
+| Tables | Custom | Simple formatting |
+| Build | `dotnet` CLI | Standard toolchain |
+
+**Project Structure:**
+
+```
+fsharp/
+├── Abraham.sln
+├── src/
+│   └── Abraham/
+│       ├── Abraham.fsproj
+│       ├── Program.fs            # Entry point
+│       ├── Cli/
+│       │   ├── Args.fs           # Argu argument types
+│       │   ├── Init.fs
+│       │   ├── Config.fs
+│       │   ├── Project.fs
+│       │   └── Task.fs
+│       ├── Config.fs             # Configuration loading
+│       ├── Db/
+│       │   ├── Database.fs       # Connection management
+│       │   ├── Migrations.fs
+│       │   ├── ProjectRepo.fs
+│       │   └── TaskRepo.fs
+│       ├── Model/
+│       │   ├── Types.fs          # All domain types
+│       │   └── Task.fs           # Task with children
+│       ├── Format/
+│       │   ├── Formatter.fs      # Function type (Strategy)
+│       │   ├── Table.fs
+│       │   ├── Json.fs
+│       │   └── Tree.fs
+│       └── Server/
+│           ├── Server.fs         # Giraffe application
+│           └── Routes.fs         # HttpHandler composition
+└── tests/
+    └── Abraham.Tests/
+        ├── Abraham.Tests.fsproj
+        └── ...
+```
+
+**Idiomatic Patterns:**
+- Discriminated unions for Status, Priority
+- Records for domain models (immutable by default)
+- Function types for Strategy pattern (`Task list -> string`)
+- `Option<'T>` for nullable fields
+- `Result<'T, 'E>` for error handling
+- Computation expressions for async/result workflows
+- Pipe operator (`|>`) for transformations
+- Active patterns for complex matching
+
+**F#-Specific Extensions:**
+- Type providers for compile-time SQL validation
+- Computation expressions for custom workflows
+- Native AOT with some limitations
+- Scripting with `.fsx` files
+- Elmish-style architecture for complex CLI state
+
+**Domain types example:**
+
+```fsharp
+module Abraham.Model.Types
+
+type Priority = Low | Medium | High | Urgent
+
+type Status = Pending | InProgress | Done | Cancelled
+
+type Project = {
+    Id: int
+    Name: string
+    Status: string
+    CreatedAt: DateTime
+    UpdatedAt: DateTime
+}
+
+type Task = {
+    Id: int
+    ProjectId: int option
+    ParentId: int option
+    Title: string
+    Description: string option
+    Status: Status
+    Priority: Priority
+    DueDate: DateTime option
+    CreatedAt: DateTime
+    UpdatedAt: DateTime
+    Children: Task list
+}
+
+// Strategy pattern as function type
+type Formatter = Task list -> string
+```
+
+**Abraham.fsproj example:**
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Model/Types.fs" />
+    <Compile Include="Config.fs" />
+    <Compile Include="Db/Database.fs" />
+    <Compile Include="Db/Migrations.fs" />
+    <Compile Include="Db/ProjectRepo.fs" />
+    <Compile Include="Db/TaskRepo.fs" />
+    <Compile Include="Format/Formatter.fs" />
+    <Compile Include="Format/Table.fs" />
+    <Compile Include="Format/Json.fs" />
+    <Compile Include="Format/Tree.fs" />
+    <Compile Include="Cli/Args.fs" />
+    <Compile Include="Cli/Init.fs" />
+    <Compile Include="Cli/Config.fs" />
+    <Compile Include="Cli/Project.fs" />
+    <Compile Include="Cli/Task.fs" />
+    <Compile Include="Server/Routes.fs" />
+    <Compile Include="Server/Server.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Argu" Version="6.2.2" />
+    <PackageReference Include="Giraffe" Version="6.4.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+    <PackageReference Include="Dapper.FSharp" Version="4.12.0" />
+    <PackageReference Include="Thoth.Json.Net" Version="12.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+  </ItemGroup>
+</Project>
+```
+
+---
+
 ## Language Comparison Summary
 
 | Language | Binary | CLI Library | SQLite | HTTP | Difficulty |
@@ -2552,4 +3015,8 @@ kotlin {
 | **TypeScript** | Single | cliffy | @db/sqlite | hono | Easy |
 | **Kotlin/JVM** | JAR | clikt | sqlite-jdbc | ktor | Easy |
 | **Kotlin/Native** | Single | clikt | C interop | ktor-cio | Medium |
+| **Java 25** | JAR/Native | picocli | sqlite-jdbc | javalin | Easy |
+| **Clojure** | JAR | cli-matic | next.jdbc | reitit | Medium |
+| **C#** | Single | System.CommandLine | Microsoft.Data.Sqlite | Minimal APIs | Easy |
+| **F#** | Single | Argu | Microsoft.Data.Sqlite | Giraffe | Medium |
 
